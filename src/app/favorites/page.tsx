@@ -103,7 +103,7 @@ export default function FavoritesPage() {
                   color: active ? cat.color : "#6C6580",
                   fontWeight: 800, fontSize: 13, cursor: "pointer", fontFamily: "inherit",
                 }}>
-                  {cat.emoji} {cat.label}
+                  {"Icon" in cat ? <cat.Icon size={13} /> : null} {cat.label}
                   <span style={{ padding: "2px 7px", borderRadius: 999, background: active ? cat.color : "#F0E4D6", color: active ? "#fff" : "#9A8B7E", fontSize: 11, fontWeight: 800 }}>
                     {count}
                   </span>
@@ -156,9 +156,14 @@ export default function FavoritesPage() {
   )
 }
 
+import type { LucideIcon } from "lucide-react"
+import { Heart as HeartIcon, Video, Headphones, FileText, Gamepad2 } from "lucide-react"
+
+const KIND_ICONS: Record<string, LucideIcon> = { video: Video, audio: Headphones, doc: FileText, game: Gamepad2 }
+
 function FavCard({ item, cat, onUnfav, animDelay }: {
   item: { id: string; kind: string; title: string; desc: string; badge: string; thumbBg: string; thumbEmoji: string; duration?: string; pages?: number; plays?: string }
-  cat: { label: string; color: string; soft: string; emoji: string }
+  cat: { label: string; color: string; soft: string; Icon?: LucideIcon }
   onUnfav: () => void
   animDelay: number
 }) {
@@ -189,14 +194,14 @@ function FavCard({ item, cat, onUnfav, animDelay }: {
         <button onClick={e => { e.stopPropagation(); onUnfav() }} style={{
           position: "absolute", top: 12, right: 12, zIndex: 2,
           width: 36, height: 36, borderRadius: 999, border: "none",
-          background: "#fff", color: "#E89B1C",
+          background: "#fff", color: "#E84B6B",
           cursor: "pointer", display: "grid", placeItems: "center",
-          boxShadow: "0 4px 10px rgba(40,20,10,0.12)", fontSize: 17,
+          boxShadow: "0 4px 10px rgba(40,20,10,0.12)",
           transition: "transform 0.18s",
         }}
           onMouseEnter={e => (e.currentTarget.style.transform = "scale(1.1)")}
           onMouseLeave={e => (e.currentTarget.style.transform = "scale(1)")}>
-          ★
+          <HeartIcon size={16} fill="#E84B6B" />
         </button>
 
         <div style={{
@@ -205,10 +210,11 @@ function FavCard({ item, cat, onUnfav, animDelay }: {
           background: "rgba(42, 47, 74, 0.78)", color: "#fff",
           fontWeight: 700, fontSize: 12, backdropFilter: "blur(6px)",
         }}>
-          {item.kind === "video" && `🎬 ${item.duration}`}
-          {item.kind === "audio" && `🎵 ${item.duration}`}
-          {item.kind === "doc"   && `📄 ${item.pages} pages`}
-          {item.kind === "game"  && `🎮 ${item.plays} plays`}
+          {(() => {
+            const KI = KIND_ICONS[item.kind]
+            const label = item.kind === "doc" ? `${item.pages} pages` : item.kind === "game" ? `${item.plays} plays` : (item.duration ?? "")
+            return KI ? <><KI size={11} /> {label}</> : null
+          })()}
         </div>
       </div>
 
@@ -218,7 +224,7 @@ function FavCard({ item, cat, onUnfav, animDelay }: {
           padding: "5px 11px", borderRadius: 999,
           background: cat.soft, color: cat.color,
           fontWeight: 700, fontSize: 11.5,
-        }}>{cat.emoji} {item.badge}</span>
+        }}>{"Icon" in cat && cat.Icon ? <cat.Icon size={11} /> : null} {item.badge}</span>
         <h3 style={{ margin: 0, fontSize: 19, fontWeight: 800, color: "#2A2F4A", lineHeight: 1.25, letterSpacing: -0.2 }}>{item.title}</h3>
         <p style={{ margin: 0, fontSize: 13.5, color: "#6C6580", lineHeight: 1.5 }}>{item.desc}</p>
         <button style={{

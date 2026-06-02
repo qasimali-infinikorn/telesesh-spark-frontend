@@ -3,28 +3,25 @@
 import { useSession } from "next-auth/react"
 import Link from "next/link"
 import { TopBar } from "@/components/topbar"
-import { RESOURCES } from "@/lib/resources"
+import { RESOURCES, CATEGORY } from "@/lib/resources"
+import { Eye, Heart, Calendar, Gamepad2, Settings, CreditCard, BookOpen, Star, ChevronRight } from "lucide-react"
+import type { LucideIcon } from "lucide-react"
 
-const CATEGORY_COLORS: Record<string, { color: string; soft: string; emoji: string }> = {
-  video: { color: "#2DB89E", soft: "#D4F1EA", emoji: "🎬" },
-  audio: { color: "#7A5BC9", soft: "#E8DFFF", emoji: "🎵" },
-  doc:   { color: "#E89B1C", soft: "#FFE9C2", emoji: "📄" },
-  game:  { color: "#E84B6B", soft: "#FFD8E1", emoji: "🎮" },
-}
+const CATEGORY_MAP = CATEGORY  // now has .Icon property
 
-const STATS = [
-  { label: "Resources viewed",  value: "47",  emoji: "👁",  color: "#2DB89E", soft: "#D4F1EA" },
-  { label: "Favorites saved",   value: "12",  emoji: "★",   color: "#E89B1C", soft: "#FFE9C2" },
-  { label: "Sessions this week",value: "8",   emoji: "📅",  color: "#7A5BC9", soft: "#E8DFFF" },
-  { label: "Games played",      value: "23",  emoji: "🎮",  color: "#E84B6B", soft: "#FFD8E1" },
+const STATS: Array<{ label: string; value: string; Icon: LucideIcon; color: string; soft: string }> = [
+  { label: "Resources viewed",   value: "47", Icon: Eye,      color: "#2DB89E", soft: "#D4F1EA" },
+  { label: "Favorites saved",    value: "12", Icon: Heart,    color: "#E89B1C", soft: "#FFE9C2" },
+  { label: "Sessions this week", value: "8",  Icon: Calendar, color: "#7A5BC9", soft: "#E8DFFF" },
+  { label: "Games played",       value: "23", Icon: Gamepad2, color: "#E84B6B", soft: "#FFD8E1" },
 ]
 
 const RECENT = RESOURCES.slice(0, 5)
 
-const BADGES = [
-  { label: "Early Adopter",    emoji: "🌟", desc: "One of the first 100 users" },
-  { label: "Game Master",      emoji: "🎮", desc: "Played 20+ games" },
-  { label: "Resource Explorer",emoji: "🔭", desc: "Viewed 50+ resources" },
+const BADGES: Array<{ label: string; Icon: LucideIcon; desc: string; color: string; soft: string }> = [
+  { label: "Early Adopter",     Icon: Star,     desc: "One of the first 100 users", color: "#E89B1C", soft: "#FFE9C2" },
+  { label: "Game Master",       Icon: Gamepad2, desc: "Played 20+ games",           color: "#E84B6B", soft: "#FFD8E1" },
+  { label: "Resource Explorer", Icon: Eye,      desc: "Viewed 50+ resources",        color: "#2DB89E", soft: "#D4F1EA" },
 ]
 
 export default function ProfilePage() {
@@ -129,8 +126,8 @@ export default function ProfilePage() {
                 }}>
                   <div style={{
                     width: 44, height: 44, borderRadius: 12, marginBottom: 14,
-                    background: s.soft, display: "grid", placeItems: "center", fontSize: 22,
-                  }}>{s.emoji}</div>
+                    background: s.soft, color: s.color, display: "grid", placeItems: "center",
+                  }}><s.Icon size={22} /></div>
                   <div style={{ fontSize: 32, fontWeight: 900, color: "#2A2F4A", letterSpacing: -0.8 }}>{s.value}</div>
                   <div style={{ fontSize: 13, fontWeight: 700, color: "#6C6580", marginTop: 2 }}>{s.label}</div>
                 </div>
@@ -154,7 +151,7 @@ export default function ProfilePage() {
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {RECENT.map((r, i) => {
-                  const c = CATEGORY_COLORS[r.kind]
+                  const c = CATEGORY_MAP[r.kind]
                   return (
                     <div key={r.id} style={{
                       display: "flex", alignItems: "center", gap: 14,
@@ -174,7 +171,7 @@ export default function ProfilePage() {
                             padding: "3px 9px", borderRadius: 999,
                             background: c.soft, color: c.color,
                             fontSize: 11, fontWeight: 800,
-                          }}>{c.emoji} {r.kind}</span>
+                          }}><c.Icon size={11} /> {r.kind}</span>
                           <span style={{ fontSize: 11.5, color: "#9A8B7E", fontWeight: 600 }}>{i === 0 ? "Today" : i === 1 ? "Yesterday" : `${i + 1} days ago`}</span>
                         </div>
                       </div>
@@ -204,7 +201,7 @@ export default function ProfilePage() {
                     background: "linear-gradient(135deg, #FFF9EC 0%, #FFF3D6 100%)",
                     border: "1px solid #F4DCC4",
                   }}>
-                    <span style={{ fontSize: 28, flexShrink: 0 }}>{b.emoji}</span>
+                    <span style={{ width: 44, height: 44, borderRadius: 12, background: b.soft, color: b.color, display: "grid", placeItems: "center", flexShrink: 0 }}><b.Icon size={20} /></span>
                     <div>
                       <div style={{ fontWeight: 900, color: "#2A2F4A", fontSize: 14.5 }}>{b.label}</div>
                       <div style={{ fontSize: 12.5, color: "#9A8B7E", fontWeight: 600, marginTop: 2 }}>{b.desc}</div>
@@ -249,12 +246,12 @@ export default function ProfilePage() {
               animation: "fadeIn 0.5s ease 0.3s both",
             }}>
               <div style={{ fontSize: 17, fontWeight: 900, color: "#2A2F4A", marginBottom: 16 }}>Quick links</div>
-              {[
-                { href: "/favorites", label: "My Favorites",    emoji: "★",  color: "#E89B1C", soft: "#FFE9C2" },
-                { href: "/settings",  label: "Account Settings",emoji: "⚙",  color: "#D76B3F", soft: "#FFE3D2" },
-                { href: "/billing",   label: "Billing & Plans",  emoji: "💳", color: "#7A5BC9", soft: "#E8DFFF" },
-                { href: "/",          label: "Resource Library", emoji: "📚", color: "#2DB89E", soft: "#D4F1EA" },
-              ].map(item => (
+              {([
+                { href: "/favorites", label: "My Favorites",     Icon: Heart,       color: "#E89B1C", soft: "#FFE9C2" },
+                { href: "/settings",  label: "Account Settings", Icon: Settings,    color: "#D76B3F", soft: "#FFE3D2" },
+                { href: "/billing",   label: "Billing & Plans",   Icon: CreditCard,  color: "#7A5BC9", soft: "#E8DFFF" },
+                { href: "/",          label: "Resource Library",  Icon: BookOpen,    color: "#2DB89E", soft: "#D4F1EA" },
+              ] as const).map(item => (
                 <Link key={item.href} href={item.href} style={{ textDecoration: "none" }}>
                   <div style={{
                     display: "flex", alignItems: "center", gap: 12,
@@ -265,11 +262,10 @@ export default function ProfilePage() {
                     onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.background = "transparent"}>
                     <span style={{
                       width: 36, height: 36, borderRadius: 10, flexShrink: 0,
-                      background: item.soft, display: "grid", placeItems: "center",
-                      fontSize: 18, color: item.color,
-                    }}>{item.emoji}</span>
+                      background: item.soft, color: item.color, display: "grid", placeItems: "center",
+                    }}><item.Icon size={17} /></span>
                     <span style={{ fontWeight: 800, color: "#2A2F4A", fontSize: 14 }}>{item.label}</span>
-                    <span style={{ marginLeft: "auto", color: "#9A8B7E", fontSize: 16 }}>›</span>
+                    <ChevronRight size={16} color="#9A8B7E" style={{ marginLeft: "auto" }} />
                   </div>
                 </Link>
               ))}

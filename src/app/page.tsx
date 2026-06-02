@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react"
 import { TopBar } from "@/components/topbar"
 import { RESOURCES, CATEGORY, ALL_TAGS, AGE_GROUPS, SERVICES } from "@/lib/resources"
 import type { Resource, CategoryKey } from "@/lib/resources"
+import { Eye, Heart, Star, Video, Headphones, FileText, Gamepad2, Search, ChevronDown, Check, SearchX } from "lucide-react"
 
 // ─── (TopBar is now the shared @/components/topbar) ──────────────────────────
 
@@ -40,7 +41,7 @@ function CategoryPills({
               transition: "all 0.18s ease",
             }}
           >
-            <span>{c.emoji}</span>
+            <c.Icon size={14} />
             {c.label}
             <span style={{
               fontSize: 12, fontWeight: 800,
@@ -124,7 +125,7 @@ function ResourceCard({
           onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
           onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
         >
-          {isFav ? "★" : "☆"}
+          <Heart size={16} fill={isFav ? c.color : "none"} />
         </button>
 
         {/* Duration / pages / plays pill */}
@@ -134,10 +135,10 @@ function ResourceCard({
           background: "rgba(42, 47, 74, 0.78)", color: "#fff",
           fontWeight: 700, fontSize: 12, backdropFilter: "blur(6px)",
         }}>
-          {item.kind === "video" && `🎬 ${item.duration}`}
-          {item.kind === "audio" && `🎵 ${item.duration}`}
-          {item.kind === "doc"   && `📄 ${item.pages} pages`}
-          {item.kind === "game"  && `🎮 ${item.plays} plays`}
+          {item.kind === "video" && <><Video     size={12} /> {item.duration}</>}
+          {item.kind === "audio" && <><Headphones size={12} /> {item.duration}</>}
+          {item.kind === "doc"   && <><FileText   size={12} /> {item.pages} pages</>}
+          {item.kind === "game"  && <><Gamepad2   size={12} /> {item.plays} plays</>}
         </div>
       </div>
 
@@ -150,7 +151,7 @@ function ResourceCard({
           background: c.soft, color: c.color,
           fontWeight: 700, fontSize: 12, letterSpacing: 0.2, alignSelf: "flex-start",
         }}>
-          {c.emoji} {item.badge}
+          <c.Icon size={12} /> {item.badge}
         </span>
 
         <h3 style={{ margin: 0, fontSize: 21, lineHeight: 1.22, color: "#2A2F4A", fontWeight: 800, letterSpacing: -0.2 }}>
@@ -170,10 +171,10 @@ function ResourceCard({
             boxShadow: `0 8px 18px ${c.color}44`,
             fontFamily: "inherit",
           }}>
-            👁 View
+            <Eye size={16} /> View
           </button>
-          <div style={{ fontSize: 36, flexShrink: 0 }}>
-            {item.kind === "video" ? "🎥" : item.kind === "audio" ? "🎧" : item.kind === "doc" ? "📚" : "🎲"}
+          <div style={{ width: 44, height: 44, borderRadius: 12, background: c.soft, color: c.color, display: "grid", placeItems: "center", flexShrink: 0 }}>
+            <c.Icon size={22} />
           </div>
         </div>
       </div>
@@ -189,7 +190,7 @@ function EmptyState() {
       padding: "60px 28px", borderRadius: 28, background: "#fff",
       textAlign: "center", border: "2px dashed #F4DCC4", marginTop: 24,
     }}>
-      <div style={{ fontSize: 44, marginBottom: 8 }}>🔎</div>
+      <div style={{ width: 64, height: 64, borderRadius: 18, background: "#FFE3D2", color: "#D76B3F", display: "grid", placeItems: "center", margin: "0 auto 12px" }}><SearchX size={28} /></div>
       <h3 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: "#2A2F4A" }}>Nothing matches yet</h3>
       <p style={{ margin: "8px 0 0", color: "#6C6580", fontWeight: 600 }}>
         Try clearing a filter or searching for something else.
@@ -379,13 +380,8 @@ function Sidebar({
       <div>
         <p style={sectionLabel}>Search</p>
         <div style={{ position: "relative" }}>
-          <span style={{
-            position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)",
-            color: "#9A8B7E", pointerEvents: "none",
-          }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-            </svg>
+          <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#9A8B7E", pointerEvents: "none", display: "grid" }}>
+            <Search size={15} />
           </span>
           <input
             type="text"
@@ -416,11 +412,7 @@ function Sidebar({
         <p style={sectionLabel}>Service</p>
         <MultiDropdown
           label="All services"
-          icon={
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-            </svg>
-          }
+          icon={<Headphones size={14} />}
           options={SERVICES}
           selected={service}
           onToggle={toggleService}
@@ -432,11 +424,7 @@ function Sidebar({
         <p style={sectionLabel}>Age Group</p>
         <MultiDropdown
           label="All ages"
-          icon={
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-            </svg>
-          }
+          icon={<Star size={14} />}
           options={AGE_GROUPS}
           selected={age}
           onToggle={toggleAge}
@@ -462,7 +450,7 @@ function Sidebar({
                 transition: "all 0.18s ease",
               }}
             >
-              <span>★ All favorites</span>
+              <span style={{ display: "flex", alignItems: "center", gap: 6 }}><Heart size={13} /> All favorites</span>
               <span style={{
                 padding: "2px 8px", borderRadius: 999,
                 background: favKind === "all-favs" ? "#D76B3F" : "#F4ECE3",
@@ -491,7 +479,7 @@ function Sidebar({
                     transition: "all 0.18s ease",
                   }}
                 >
-                  <span>{c.emoji} {c.label}</span>
+                  <span style={{ display: "flex", alignItems: "center", gap: 6 }}><c.Icon size={13} /> {c.label}</span>
                   <span style={{
                     padding: "2px 8px", borderRadius: 999,
                     background: isActive ? c.color : "#F4ECE3",

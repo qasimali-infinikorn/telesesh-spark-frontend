@@ -317,7 +317,7 @@ export default function ResourcesPage() {
                   fontWeight: 700, fontSize: 12.5,
                   width: "fit-content",
                 }}>
-                  {cat.emoji} {cat.label}
+                  {"Icon" in cat && cat.Icon ? <cat.Icon size={11} /> : null} {cat.label}
                 </span>
 
                 {/* Date */}
