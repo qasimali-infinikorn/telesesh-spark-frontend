@@ -1,37 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { C, Panel, User2, Mail, Lock, Star, Check, ChevronDown } from "./shared"
-
-const PLANS = [
-  {
-    id: "starter",
-    name: "Starter",
-    price: "$0",
-    period: "/mo",
-    color: "#6C6580",
-    soft: "#F4ECE3",
-    features: ["5 resources", "Basic analytics", "1 admin user"],
-  },
-  {
-    id: "pro",
-    name: "Pro",
-    price: "$29",
-    period: "/mo",
-    color: "#2DB89E",
-    soft: "#D4F1EA",
-    features: ["Unlimited resources", "Advanced analytics", "3 admin users", "Priority support"],
-  },
-  {
-    id: "clinic",
-    name: "Clinic",
-    price: "$79",
-    period: "/mo",
-    color: "#D76B3F",
-    soft: "#FFE3D2",
-    features: ["Everything in Pro", "Custom branding", "Unlimited admins", "API access", "Dedicated support"],
-  },
-]
+import { C, Panel, User2, Mail, Lock, Check } from "./shared"
 
 export default function SettingsPage() {
   const [name, setName]           = useState("Alex Johnson")
@@ -42,8 +12,6 @@ export default function SettingsPage() {
   const [confirmPw, setConfirmPw] = useState("")
   const [pwMsg, setPwMsg]         = useState<{ text: string; ok: boolean } | null>(null)
   const [savMsg, setSavMsg]       = useState(false)
-  const [selectedPlan, setSelectedPlan] = useState("pro")
-  const [planOpen, setPlanOpen]   = useState(false)
 
   function handleSaveAccount(e: React.FormEvent) {
     e.preventDefault()
@@ -60,8 +28,6 @@ export default function SettingsPage() {
     setCurrentPw(""); setNewPw(""); setConfirmPw("")
     setTimeout(() => setPwMsg(null), 3000)
   }
-
-  const currentPlan = PLANS.find((p) => p.id === selectedPlan)!
 
   return (
     <div style={{ fontFamily: "var(--font-nunito)", padding: "32px 36px", maxWidth: 760 }}>
@@ -189,84 +155,6 @@ export default function SettingsPage() {
         </form>
       </Panel>
 
-      {/* Subscription */}
-      <Panel title="Subscription Plan" icon={<Star size={16} />}>
-        <div style={{
-          padding: "16px 20px", borderRadius: 14,
-          background: currentPlan.soft, border: `2px solid ${currentPlan.color}20`,
-          marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "space-between",
-        }}>
-          <div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: C.muted, marginBottom: 2 }}>Current plan</div>
-            <div style={{ fontSize: 20, fontWeight: 900, color: currentPlan.color }}>{currentPlan.name}</div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: C.muted, marginTop: 2 }}>
-              {currentPlan.features.join(" · ")}
-            </div>
-          </div>
-          <div style={{ textAlign: "right" }}>
-            <span style={{ fontSize: 28, fontWeight: 900, color: currentPlan.color }}>{currentPlan.price}</span>
-            <span style={{ fontSize: 13, color: C.muted, fontWeight: 600 }}>{currentPlan.period}</span>
-          </div>
-        </div>
-
-        <button
-          onClick={() => setPlanOpen(!planOpen)}
-          style={{
-            display: "flex", alignItems: "center", gap: 8,
-            padding: "10px 16px", borderRadius: 12,
-            border: `2px solid ${C.hairline}`, background: "#FAF4ED",
-            color: C.muted, fontWeight: 800, fontSize: 13.5,
-            cursor: "pointer", fontFamily: "inherit", marginBottom: planOpen ? 16 : 0,
-          }}
-        >
-          {planOpen ? "Hide plans" : "Change plan"}
-          <span style={{ transform: planOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s", display: "inline-flex" }}>
-            <ChevronDown size={14} />
-          </span>
-        </button>
-
-        {planOpen && (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
-            {PLANS.map((plan) => {
-              const active = selectedPlan === plan.id
-              return (
-                <div
-                  key={plan.id}
-                  onClick={() => setSelectedPlan(plan.id)}
-                  style={{
-                    borderRadius: 16, padding: "20px 18px",
-                    border: `2px solid ${active ? plan.color : C.hairline}`,
-                    background: active ? plan.soft : "#FAF4ED",
-                    cursor: "pointer", transition: "all 0.18s ease",
-                  }}
-                >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
-                    <div style={{ fontSize: 16, fontWeight: 900, color: plan.color }}>{plan.name}</div>
-                    {active && (
-                      <div style={{
-                        width: 22, height: 22, borderRadius: 999, background: plan.color,
-                        display: "grid", placeItems: "center", color: "#fff",
-                      }}>
-                        <Check size={12} />
-                      </div>
-                    )}
-                  </div>
-                  <div style={{ fontSize: 22, fontWeight: 900, color: C.ink, marginBottom: 12 }}>
-                    {plan.price}<span style={{ fontSize: 12, fontWeight: 600, color: C.muted }}>{plan.period}</span>
-                  </div>
-                  <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 6 }}>
-                    {plan.features.map((f) => (
-                      <li key={f} style={{ fontSize: 12.5, fontWeight: 600, color: C.muted, display: "flex", alignItems: "center", gap: 6 }}>
-                        <span style={{ color: plan.color }}><Check size={12} /></span> {f}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )
-            })}
-          </div>
-        )}
-      </Panel>
     </div>
   )
 }
