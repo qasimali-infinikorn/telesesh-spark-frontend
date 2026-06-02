@@ -5,18 +5,19 @@ import { ADMIN_RESOURCES, fmtDate } from "@/lib/admin-data"
 import type { AdminResource } from "@/lib/admin-data"
 import { CATEGORY } from "@/lib/resources"
 import type { CategoryKey } from "@/lib/resources"
-import { C, RowBtn, Confirm, Plus, Search, Eye, Pencil, Trash2, X } from "./shared"
+import { C, RowBtn, Confirm, Plus, Search, Eye, Pencil, Trash2, X, Video, Headphones, FileText, Gamepad2, Sparkles, TrendingUp } from "./shared"
+import type { LucideIcon } from "lucide-react"
 import ResourceForm from "./resource-form"
 
 type Kind = "video" | "audio" | "doc" | "game"
 
 // ─── TypePickerModal ──────────────────────────────────────────────────────────
 
-const TYPE_CARDS: { kind: Kind; label: string; emoji: string; desc: string; color: string; soft: string }[] = [
-  { kind: "video", label: "Video",    emoji: "🎬", desc: "Upload or embed a video resource", color: "#2DB89E", soft: "#D4F1EA" },
-  { kind: "audio", label: "Audio",    emoji: "🎵", desc: "Audio clips, songs or narrations",  color: "#7A5BC9", soft: "#E8DFFF" },
-  { kind: "doc",   label: "Document", emoji: "📄", desc: "PDFs, worksheets or printables",    color: "#E89B1C", soft: "#FFE9C2" },
-  { kind: "game",  label: "Game",     emoji: "🎮", desc: "Interactive HTML5 games",           color: "#E84B6B", soft: "#FFD8E1" },
+const TYPE_CARDS: { kind: Kind; label: string; Icon: LucideIcon; desc: string; color: string; soft: string }[] = [
+  { kind: "video", label: "Video",    Icon: Video,      desc: "Upload or embed a video resource", color: "#2DB89E", soft: "#D4F1EA" },
+  { kind: "audio", label: "Audio",    Icon: Headphones, desc: "Audio clips, songs or narrations",  color: "#7A5BC9", soft: "#E8DFFF" },
+  { kind: "doc",   label: "Document", Icon: FileText,   desc: "PDFs, worksheets or printables",    color: "#E89B1C", soft: "#FFE9C2" },
+  { kind: "game",  label: "Game",     Icon: Gamepad2,   desc: "Interactive HTML5 games",           color: "#E84B6B", soft: "#FFD8E1" },
 ]
 
 function TypePickerModal({
@@ -73,7 +74,7 @@ function TypePickerModal({
                   display: "flex", flexDirection: "column", gap: 8,
                 }}
               >
-                <div style={{ fontSize: 32 }}>{card.emoji}</div>
+                <div style={{ width: 52, height: 52, borderRadius: 14, background: card.soft, color: card.color, display: "grid", placeItems: "center" }}><card.Icon size={26} /></div>
                 <div style={{ fontSize: 15, fontWeight: 900, color: isHov ? card.color : C.ink }}>{card.label}</div>
                 <div style={{ fontSize: 12.5, fontWeight: 600, color: C.muted, lineHeight: 1.4 }}>{card.desc}</div>
               </button>
@@ -157,12 +158,12 @@ export default function ResourcesPage() {
 
   const toDelete = resources.find((r) => r.id === deleteId)
 
-  const FILTERS: { key: "all" | Kind; label: string; emoji: string }[] = [
-    { key: "all",   label: "All",       emoji: "✨" },
-    { key: "video", label: "Videos",    emoji: "🎬" },
-    { key: "audio", label: "Audio",     emoji: "🎵" },
-    { key: "doc",   label: "Documents", emoji: "📄" },
-    { key: "game",  label: "Games",     emoji: "🎮" },
+  const FILTERS: { key: "all" | Kind; label: string; Icon: LucideIcon; color: string }[] = [
+    { key: "all",   label: "All",       Icon: Sparkles,   color: "#D76B3F" },
+    { key: "video", label: "Videos",    Icon: Video,      color: "#2DB89E" },
+    { key: "audio", label: "Audio",     Icon: Headphones, color: "#7A5BC9" },
+    { key: "doc",   label: "Documents", Icon: FileText,   color: "#E89B1C" },
+    { key: "game",  label: "Games",     Icon: Gamepad2,   color: "#E84B6B" },
   ]
 
   return (
@@ -228,7 +229,7 @@ export default function ResourcesPage() {
                   transition: "all 0.15s ease",
                 }}
               >
-                {f.emoji} {f.label}
+                <f.Icon size={13} /> {f.label}
               </button>
             )
           })}
