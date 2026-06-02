@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { useSession } from "next-auth/react"
-import Link from "next/link"
 import { TopBar } from "@/components/topbar"
 
 const C = {
@@ -51,13 +50,6 @@ const primaryBtn: React.CSSProperties = {
   boxShadow: `0 8px 18px ${C.coral}44`,
 }
 
-const ghostBtn: React.CSSProperties = {
-  padding: "12px 22px", borderRadius: 14,
-  border: "2px solid #F0E4D6", background: "#fff",
-  color: C.ink, fontWeight: 800, fontSize: 14.5,
-  cursor: "pointer", fontFamily: "inherit",
-  display: "inline-flex", alignItems: "center", gap: 8,
-}
 
 export default function SettingsPage() {
   const { data: session } = useSession()
@@ -187,7 +179,7 @@ export default function SettingsPage() {
                   onFocus={e => { e.target.style.borderColor = C.coral; e.target.style.background = "#fff" }}
                   onBlur={e => { e.target.style.borderColor = "#F0E4D6"; e.target.style.background = C.page }} />
                 {pw.next && pw.confirm && pw.next !== pw.confirm && (
-                  <p style={{ margin: "6px 0 0", fontSize: 12.5, fontWeight: 700, color: "#E84B6B" }}>Passwords don't match.</p>
+                  <p style={{ margin: "6px 0 0", fontSize: 12.5, fontWeight: 700, color: "#E84B6B" }}>Passwords don&apos;t match.</p>
                 )}
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>

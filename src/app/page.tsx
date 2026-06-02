@@ -1,12 +1,11 @@
 "use client"
 
 import { useState, useMemo, useRef, useEffect } from "react"
-import Link from "next/link"
 import { useSession } from "next-auth/react"
 import { TopBar } from "@/components/topbar"
 import { RESOURCES, CATEGORY, ALL_TAGS, AGE_GROUPS, SERVICES } from "@/lib/resources"
 import type { Resource, CategoryKey } from "@/lib/resources"
-import { Eye, Heart, Star, Video, Headphones, FileText, Gamepad2, Search, ChevronDown, Check, SearchX } from "lucide-react"
+import { Eye, Heart, Star, Video, Headphones, FileText, Gamepad2, Search, SearchX } from "lucide-react"
 
 // ─── (TopBar is now the shared @/components/topbar) ──────────────────────────
 
@@ -564,28 +563,28 @@ export default function LibraryPage() {
   const toggleFav = (id: string) =>
     setFavorites((prev) => {
       const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
+      if (next.has(id)) { next.delete(id) } else { next.add(id) }
       return next
     })
 
   const toggleTag = (tag: string) =>
     setActiveTags((prev) => {
       const next = new Set(prev)
-      next.has(tag) ? next.delete(tag) : next.add(tag)
+      if (next.has(tag)) { next.delete(tag) } else { next.add(tag) }
       return next
     })
 
   const toggleAge = (a: string) =>
     setAge((prev) => {
       const next = new Set(prev)
-      next.has(a) ? next.delete(a) : next.add(a)
+      if (next.has(a)) { next.delete(a) } else { next.add(a) }
       return next
     })
 
   const toggleService = (s: string) =>
     setService((prev) => {
       const next = new Set(prev)
-      next.has(s) ? next.delete(s) : next.add(s)
+      if (next.has(s)) { next.delete(s) } else { next.add(s) }
       return next
     })
 

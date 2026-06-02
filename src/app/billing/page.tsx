@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { useSession } from "next-auth/react"
-import Link from "next/link"
 import { TopBar } from "@/components/topbar"
 
 const PLANS = [
@@ -295,7 +294,7 @@ export default function BillingPage() {
           <div style={{ padding: "14px 20px", background: "#FAF4ED", borderBottom: "1px solid #F4ECE3", display: "grid", gridTemplateColumns: "1fr 1fr 100px 120px 100px", gap: 12, fontSize: 11.5, fontWeight: 800, color: "#9A8B7E", letterSpacing: 0.6, textTransform: "uppercase" }}>
             <span>Invoice</span><span>Date</span><span>Plan</span><span>Amount</span><span style={{ textAlign: "right" }}>Status</span>
           </div>
-          {HISTORY.map((inv, i) => (
+          {HISTORY.map((inv) => (
             <div key={inv.id} style={{
               padding: "16px 20px", borderBottom: "1px solid #FAF4ED",
               display: "grid", gridTemplateColumns: "1fr 1fr 100px 120px 100px", gap: 12, alignItems: "center",

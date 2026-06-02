@@ -23,7 +23,7 @@ export default function FavoritesPage() {
   const toggleFav = (id: string) => {
     setFavorites(prev => {
       const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
+      if (next.has(id)) { next.delete(id) } else { next.add(id) }
       return next
     })
   }
@@ -146,7 +146,6 @@ export default function FavoritesPage() {
           }}>
             {favItems.map((item, i) => {
               const c = CATEGORY[item.kind]
-              const [hover, setHover] = [false, () => {}] // placeholder — use state in component
               return <FavCard key={item.id} item={item} cat={c} onUnfav={() => toggleFav(item.id)} animDelay={i * 55} />
             })}
           </div>

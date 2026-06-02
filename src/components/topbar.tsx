@@ -7,7 +7,7 @@ import { signOut } from "next-auth/react"
 import {
   BookOpen, Heart, User2, Settings, CreditCard,
   LayoutDashboard, LogOut, ChevronDown,
-  ICON_MD, ICON_SM,
+  ICON_SM,
 } from "@/lib/icons"
 
 // Custom sparkle logo mark — tighter than Lucide Sparkles at small sizes
