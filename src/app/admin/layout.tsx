@@ -3,16 +3,26 @@
 import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { C, AdminIcons } from "@/components/admin/shared"
+import { C, LayoutDashboard, FolderOpen, Mic, Tag, Users, Settings, ChevronLeft } from "@/components/admin/shared"
+import type { LucideIcon } from "lucide-react"
 
 const NAV_ITEMS = [
-  { href: "/admin/dashboard",  label: "Dashboard",   icon: (s: number) => AdminIcons.Dash(s) },
-  { href: "/admin/resources",  label: "Resources",   icon: (s: number) => AdminIcons.Folder(s) },
-  { href: "/admin/sounds",     label: "Sounds",      icon: (s: number) => AdminIcons.Wave(s) },
-  { href: "/admin/tags",       label: "Tags",        icon: (s: number) => AdminIcons.Tag(s) },
-  { href: "/admin/age-groups", label: "Age Groups",  icon: (s: number) => AdminIcons.Users(s) },
-  { href: "/admin/settings",   label: "Settings",    icon: (s: number) => AdminIcons.Settings(s) },
+  { href: "/admin/dashboard",  label: "Dashboard",   Icon: LayoutDashboard },
+  { href: "/admin/resources",  label: "Resources",   Icon: FolderOpen      },
+  { href: "/admin/sounds",     label: "Sounds",      Icon: Mic             },
+  { href: "/admin/tags",       label: "Tags",        Icon: Tag             },
+  { href: "/admin/age-groups", label: "Age Groups",  Icon: Users           },
+  { href: "/admin/settings",   label: "Settings",    Icon: Settings        },
 ]
+
+function SparkLogo() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+      <path d="M12 2L13.5 8.5L20 10L13.5 11.5L12 18L10.5 11.5L4 10L10.5 8.5Z"/>
+      <path d="M19 1L19.8 3.2L22 4L19.8 4.8L19 7L18.2 4.8L16 4L18.2 3.2Z" opacity="0.7"/>
+    </svg>
+  )
+}
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -41,9 +51,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               background: "linear-gradient(135deg, #2DB89E 0%, #34D4B5 100%)",
               color: "#fff", display: "grid", placeItems: "center",
               boxShadow: "0 6px 14px rgba(45,184,158,0.35)",
-              fontSize: 20,
             }}>
-              ✦
+              <SparkLogo />
             </div>
             <div>
               <div style={{ fontSize: 16, fontWeight: 900, color: C.ink, letterSpacing: -0.3, lineHeight: 1 }}>
@@ -92,7 +101,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 ;(e.currentTarget as HTMLDivElement).style.color = C.muted
               }}
             >
-              {AdminIcons.Back(15)}
+              <ChevronLeft size={15} />
               Back to library
             </div>
           </Link>
@@ -116,7 +125,7 @@ function NavItem({
   item,
   active,
 }: {
-  item: { href: string; label: string; icon: (s: number) => React.ReactNode }
+  item: { href: string; label: string; Icon: LucideIcon }
   active: boolean
 }) {
   const [hover, setHover] = useState(false)
@@ -144,7 +153,7 @@ function NavItem({
           }} />
         )}
         <span style={{ color: active ? C.primary : hover ? C.ink : C.muted, display: "flex", alignItems: "center" }}>
-          {item.icon(16)}
+          <item.Icon size={16} />
         </span>
         {item.label}
       </div>

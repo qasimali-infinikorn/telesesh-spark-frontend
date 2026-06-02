@@ -5,7 +5,7 @@ import { ADMIN_RESOURCES, fmtDate } from "@/lib/admin-data"
 import type { AdminResource } from "@/lib/admin-data"
 import { CATEGORY } from "@/lib/resources"
 import type { CategoryKey } from "@/lib/resources"
-import { C, RowBtn, Confirm, AdminIcons } from "./shared"
+import { C, RowBtn, Confirm, Plus, Search, Eye, Pencil, Trash2, X } from "./shared"
 import ResourceForm from "./resource-form"
 
 type Kind = "video" | "audio" | "doc" | "game"
@@ -51,7 +51,7 @@ function TypePickerModal({
             background: C.panelBg, color: C.muted,
             cursor: "pointer", display: "grid", placeItems: "center", fontFamily: "inherit",
           }}>
-            {AdminIcons.Close(15)}
+            <X size={15} />
           </button>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
@@ -186,7 +186,7 @@ export default function ResourcesPage() {
             boxShadow: "0 8px 18px rgba(215,107,63,0.35)",
           }}
         >
-          {AdminIcons.Plus(16)} Add Resource
+          <Plus size={16} /> Add Resource
         </button>
       </div>
 
@@ -194,7 +194,7 @@ export default function ResourcesPage() {
       <div style={{ display: "flex", gap: 14, alignItems: "center", marginBottom: 20, flexWrap: "wrap" as const }}>
         <div style={{ position: "relative", flex: "1 1 280px", maxWidth: 380 }}>
           <span style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", color: C.muted, pointerEvents: "none" }}>
-            {AdminIcons.Search(16)}
+            <Search size={16} />
           </span>
           <input
             value={search} onChange={(e) => setSearch(e.target.value)}
@@ -326,18 +326,18 @@ export default function ResourcesPage() {
                 {/* Actions */}
                 <div style={{ display: "flex", gap: 2 }}>
                   <RowBtn
-                    icon={AdminIcons.Eye(15)}
+                    icon={<Eye size={15} />}
                     color={C.accent} bg={C.accentSft}
                     title="Analytics"
                   />
                   <RowBtn
-                    icon={AdminIcons.Pencil(15)}
+                    icon={<Pencil size={15} />}
                     color={C.primary} bg={C.primarySft}
                     title="Edit"
                     onClick={() => { setEditItem(item); setFormKind(item.kind) }}
                   />
                   <RowBtn
-                    icon={AdminIcons.Trash(15)}
+                    icon={<Trash2 size={15} />}
                     color="#E84B6B" bg="#FFD8E1"
                     title="Delete"
                     onClick={() => setDeleteId(item.id)}

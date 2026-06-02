@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { C, RowBtn, Confirm, AdminIcons } from "./shared"
+import { C, RowBtn, Confirm, Plus, Check, X, Pencil, Trash2 } from "./shared"
 
 interface ListManagerProps {
   title: string
@@ -95,7 +95,7 @@ export default function ListManager({
               opacity: input.trim() ? 1 : 0.6,
             }}
           >
-            {AdminIcons.Plus(16)} Add
+            <Plus size={16} /> Add
           </button>
         </div>
       </div>
@@ -153,14 +153,14 @@ export default function ListManager({
                 {editIdx === idx ? (
                   <>
                     <RowBtn
-                      icon={AdminIcons.Check(15)}
+                      icon={<Check size={15} />}
                       color="#1A8A70"
                       bg="#D4F1EA"
                       title="Save"
                       onClick={() => handleEditSave(idx)}
                     />
                     <RowBtn
-                      icon={AdminIcons.Close(15)}
+                      icon={<X size={15} />}
                       color={C.muted}
                       title="Cancel"
                       onClick={() => setEditIdx(null)}
@@ -169,14 +169,14 @@ export default function ListManager({
                 ) : (
                   <>
                     <RowBtn
-                      icon={AdminIcons.Pencil(15)}
+                      icon={<Pencil size={15} />}
                       color={C.primary}
                       bg={C.primarySft}
                       title="Edit"
                       onClick={() => { setEditIdx(idx); setEditVal(item) }}
                     />
                     <RowBtn
-                      icon={AdminIcons.Trash(15)}
+                      icon={<Trash2 size={15} />}
                       color="#E84B6B"
                       bg="#FFD8E1"
                       title="Delete"

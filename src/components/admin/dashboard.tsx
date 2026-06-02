@@ -1,7 +1,7 @@
 "use client"
 
 import { ADMIN_RESOURCES, hashId } from "@/lib/admin-data"
-import { C, StatCard, Panel, AdminIcons } from "./shared"
+import { C, StatCard, Panel, Eye, Star, FolderOpen, TrendingUp } from "./shared"
 
 // ─── Derived data ─────────────────────────────────────────────────────────────
 
@@ -60,7 +60,7 @@ function WeeklyChart() {
     <Panel
       title="Views over time"
       subtitle="Last 8 weeks"
-      icon={AdminIcons.Trend(15)}
+      icon={<TrendingUp size={15} />}
     >
       <div style={{ display: "flex", alignItems: "flex-end", gap: 10, height: 140, paddingBottom: 4 }}>
         {BARS.map((val, i) => {
@@ -99,7 +99,7 @@ function DonutChart() {
     <Panel
       title="Views by category"
       subtitle="All-time breakdown"
-      icon={AdminIcons.Eye(15)}
+      icon={<Eye size={15} />}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
         {/* Donut */}
@@ -209,7 +209,7 @@ export default function Dashboard() {
       {/* KPI Cards */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 24 }}>
         <StatCard
-          icon={<span style={{ fontSize: 20 }}>👁</span>}
+          icon={<Eye size={18} />}
           iconBg="#D4F1EA"
           value={totalViews.toLocaleString()}
           label="Total Views"
@@ -217,7 +217,7 @@ export default function Dashboard() {
           deltaPositive
         />
         <StatCard
-          icon={<span style={{ fontSize: 20 }}>⭐</span>}
+          icon={<Star size={18} />}
           iconBg="#FFE3D2"
           value={totalFavs.toLocaleString()}
           label="Favorites"
@@ -225,7 +225,7 @@ export default function Dashboard() {
           deltaPositive
         />
         <StatCard
-          icon={<span style={{ fontSize: 20 }}>📦</span>}
+          icon={<FolderOpen size={18} />}
           iconBg="#E8DFFF"
           value={totalCount.toString()}
           label="Resources"
@@ -244,7 +244,7 @@ export default function Dashboard() {
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
         <TopList
           title="Top Resources"
-          icon={AdminIcons.Trend(15)}
+          icon={<TrendingUp size={15} />}
           items={topByViews}
           valueKey="views"
           maxValue={topByViews[0]?.views ?? 1}
@@ -252,7 +252,7 @@ export default function Dashboard() {
         />
         <TopList
           title="Most Favorited"
-          icon={AdminIcons.StarF(15)}
+          icon={<Star size={15} />}
           items={topByFavs}
           valueKey="favCount"
           maxValue={topByFavs[0]?.favCount ?? 1}

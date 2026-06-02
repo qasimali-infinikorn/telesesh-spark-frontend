@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { C, Panel, AdminIcons } from "./shared"
+import { C, Panel, User2, Mail, Lock, Star, Check, ChevronDown } from "./shared"
 
 const PLANS = [
   {
@@ -71,7 +71,7 @@ export default function SettingsPage() {
       </p>
 
       {/* Account Details */}
-      <Panel title="Account Details" icon={AdminIcons.User(16)} style={{ marginBottom: 24 }}>
+      <Panel title="Account Details" icon={<User2 size={16} />} style={{ marginBottom: 24 }}>
         <form onSubmit={handleSaveAccount} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
             <div>
@@ -87,7 +87,7 @@ export default function SettingsPage() {
               <label style={labelStyle}>Email Address</label>
               <div style={{ position: "relative" }}>
                 <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: C.muted }}>
-                  {AdminIcons.Mail(16)}
+                  <Mail size={16} />
                 </span>
                 <input
                   value={email} onChange={(e) => setEmail(e.target.value)}
@@ -124,7 +124,7 @@ export default function SettingsPage() {
             <button type="submit" style={primaryBtn}>Save Changes</button>
             {savMsg && (
               <span style={{ fontSize: 13.5, fontWeight: 700, color: "#1A8A70", display: "flex", alignItems: "center", gap: 6 }}>
-                {AdminIcons.Check(15)} Saved!
+                <Check size={15} /> Saved!
               </span>
             )}
           </div>
@@ -132,7 +132,7 @@ export default function SettingsPage() {
       </Panel>
 
       {/* Password Reset */}
-      <Panel title="Password & Security" icon={AdminIcons.Lock(16)} style={{ marginBottom: 24 }}>
+      <Panel title="Password & Security" icon={<Lock size={16} />} style={{ marginBottom: 24 }}>
         <form onSubmit={handlePasswordReset} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <div>
             <label style={labelStyle}>Current Password</label>
@@ -190,7 +190,7 @@ export default function SettingsPage() {
       </Panel>
 
       {/* Subscription */}
-      <Panel title="Subscription Plan" icon={AdminIcons.StarF(16)}>
+      <Panel title="Subscription Plan" icon={<Star size={16} />}>
         <div style={{
           padding: "16px 20px", borderRadius: 14,
           background: currentPlan.soft, border: `2px solid ${currentPlan.color}20`,
@@ -221,7 +221,7 @@ export default function SettingsPage() {
         >
           {planOpen ? "Hide plans" : "Change plan"}
           <span style={{ transform: planOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s", display: "inline-flex" }}>
-            {AdminIcons.Chevron(14)}
+            <ChevronDown size={14} />
           </span>
         </button>
 
@@ -247,7 +247,7 @@ export default function SettingsPage() {
                         width: 22, height: 22, borderRadius: 999, background: plan.color,
                         display: "grid", placeItems: "center", color: "#fff",
                       }}>
-                        {AdminIcons.Check(12)}
+                        <Check size={12} />
                       </div>
                     )}
                   </div>
@@ -257,7 +257,7 @@ export default function SettingsPage() {
                   <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 6 }}>
                     {plan.features.map((f) => (
                       <li key={f} style={{ fontSize: 12.5, fontWeight: 600, color: C.muted, display: "flex", alignItems: "center", gap: 6 }}>
-                        <span style={{ color: plan.color }}>{AdminIcons.Check(12)}</span> {f}
+                        <span style={{ color: plan.color }}><Check size={12} /></span> {f}
                       </li>
                     ))}
                   </ul>

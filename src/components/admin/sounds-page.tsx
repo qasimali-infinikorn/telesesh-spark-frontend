@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { ADMIN_SOUNDS, fmtDate } from "@/lib/admin-data"
 import type { AdminSound } from "@/lib/admin-data"
-import { C, RowBtn, Confirm, AdminIcons } from "./shared"
+import { C, RowBtn, Confirm, Plus, Search, Pencil, Trash2 } from "./shared"
 
 // ─── SoundForm ────────────────────────────────────────────────────────────────
 
@@ -155,14 +155,14 @@ export default function SoundsPage() {
             boxShadow: "0 8px 18px rgba(215,107,63,0.35)",
           }}
         >
-          {AdminIcons.Plus(16)} Add Sound
+          <Plus size={16} /> Add Sound
         </button>
       </div>
 
       {/* Search */}
       <div style={{ position: "relative", maxWidth: 380, marginBottom: 20 }}>
         <span style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", color: C.muted, pointerEvents: "none" }}>
-          {AdminIcons.Search(16)}
+          <Search size={16} />
         </span>
         <input
           value={search} onChange={(e) => setSearch(e.target.value)}
@@ -248,13 +248,13 @@ export default function SoundsPage() {
                 {/* Actions */}
                 <div style={{ display: "flex", gap: 4 }}>
                   <RowBtn
-                    icon={AdminIcons.Pencil(15)}
+                    icon={<Pencil size={15} />}
                     color={C.primary} bg={C.primarySft}
                     title="Edit"
                     onClick={() => setEditSound(sound)}
                   />
                   <RowBtn
-                    icon={AdminIcons.Trash(15)}
+                    icon={<Trash2 size={15} />}
                     color="#E84B6B" bg="#FFD8E1"
                     title="Delete"
                     onClick={() => setDeleteId(sound.id)}

@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { AGE_OPTIONS, SERVICE_OPTIONS } from "@/lib/admin-data"
 import { ALL_TAGS } from "@/lib/resources"
-import { C, MultiDropdown, AdminIcons } from "./shared"
+import { C, MultiDropdown, Check, X, Plus, Sparkles, Code2, Globe, FilePenLine, Video, Headphones, FileText, Gamepad2 } from "./shared"
 import type { AdminResource } from "@/lib/admin-data"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -97,7 +97,7 @@ function Stepper({ step }: { step: number }) {
                 fontWeight: 900, fontSize: 14,
                 boxShadow: active ? `0 6px 16px ${C.primary}44` : "none",
               }}>
-                {done ? AdminIcons.Check(16) : i + 1}
+                {done ? <Check size={16} /> : i + 1}
               </div>
               <span style={{
                 fontSize: 13.5, fontWeight: 800,
@@ -262,7 +262,7 @@ function Step1({ form, setForm }: { form: FormState; setForm: React.Dispatch<Rea
               fontWeight: 800, fontSize: 13, cursor: "pointer", fontFamily: "inherit",
             }}
           >
-            {AdminIcons.Plus(14)}
+            <Plus size={14} />
           </button>
         </div>
         <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 8 }}>
@@ -283,7 +283,7 @@ function Step1({ form, setForm }: { form: FormState; setForm: React.Dispatch<Rea
                   fontFamily: "inherit",
                 }}
               >
-                {AdminIcons.Close(10)}
+                <X size={10} />
               </button>
             </span>
           ))}
@@ -471,7 +471,10 @@ function Step2({ form, setForm }: { form: FormState; setForm: React.Dispatch<Rea
               boxShadow: form.gameTab === tab ? "0 2px 8px rgba(40,20,10,0.1)" : "none",
             }}
           >
-            {tab === "ai" ? "✨ AI Prompt Builder" : "⌨ Paste Code"}
+            {tab === "ai"
+              ? <><Sparkles size={14} style={{ display: "inline", verticalAlign: "middle", marginRight: 6 }} />AI Prompt Builder</>
+              : <><Code2 size={14} style={{ display: "inline", verticalAlign: "middle", marginRight: 6 }} />Paste Code</>
+            }
           </button>
         ))}
       </div>
@@ -543,7 +546,7 @@ function Step2({ form, setForm }: { form: FormState; setForm: React.Dispatch<Rea
                 Building your game…
               </>
             ) : (
-              <>{AdminIcons.Sparkle(16)} Generate Game</>
+              <><Sparkles size={16} /> Generate Game</>
             )}
           </button>
 
@@ -570,7 +573,7 @@ function Step2({ form, setForm }: { form: FormState; setForm: React.Dispatch<Rea
                   color: pasteValid ? "#1A8A70" : "#B03050",
                   display: "flex", alignItems: "center", gap: 4,
                 }}>
-                  {pasteValid ? AdminIcons.Check(13) : AdminIcons.Close(13)}
+                  {pasteValid ? <Check size={13} /> : <X size={13} />}
                   {pasteValid ? "Valid HTML" : "Looks incomplete"}
                 </span>
               )}
@@ -622,11 +625,11 @@ function Step3({
   onPublish: () => void
   onDraft: () => void
 }) {
-  const catColors: Record<Kind, { color: string; soft: string; emoji: string }> = {
-    video: { color: "#2DB89E", soft: "#D4F1EA", emoji: "🎬" },
-    audio: { color: "#7A5BC9", soft: "#E8DFFF", emoji: "🎵" },
-    doc:   { color: "#E89B1C", soft: "#FFE9C2", emoji: "📄" },
-    game:  { color: "#E84B6B", soft: "#FFD8E1", emoji: "🎮" },
+  const catColors: Record<Kind, { color: string; soft: string; Icon: React.ComponentType<{ size?: number }> }> = {
+    video: { color: "#2DB89E", soft: "#D4F1EA", Icon: Video      },
+    audio: { color: "#7A5BC9", soft: "#E8DFFF", Icon: Headphones },
+    doc:   { color: "#E89B1C", soft: "#FFE9C2", Icon: FileText   },
+    game:  { color: "#E84B6B", soft: "#FFD8E1", Icon: Gamepad2   },
   }
   const cat = catColors[kind]
 
@@ -653,7 +656,7 @@ function Step3({
             padding: "3px 10px", borderRadius: 999,
             background: cat.soft, color: cat.color, fontWeight: 700, fontSize: 12.5,
           }}>
-            {cat.emoji} {kind.charAt(0).toUpperCase() + kind.slice(1)}
+            <cat.Icon size={11} /> {kind.charAt(0).toUpperCase() + kind.slice(1)}
           </span>
         } />
         {form.tags.length > 0 && (
@@ -680,9 +683,10 @@ function Step3({
             border: `2px solid ${C.hairline}`, background: "#fff",
             color: C.muted, fontWeight: 800, fontSize: 14,
             cursor: "pointer", fontFamily: "inherit",
+            display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
           }}
         >
-          Save as Draft
+          <FilePenLine size={16} /> Save as Draft
         </button>
         <button
           type="button" onClick={onPublish}
@@ -695,7 +699,7 @@ function Step3({
             display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
           }}
         >
-          {AdminIcons.Check(16)} Publish Resource
+          <Globe size={16} /> Publish Resource
         </button>
       </div>
     </div>
@@ -776,7 +780,7 @@ export default function ResourceForm({ kind, initial, onClose, onSave }: Resourc
               fontFamily: "inherit",
             }}
           >
-            {AdminIcons.Close(16)}
+            <X size={16} />
           </button>
         </div>
 
