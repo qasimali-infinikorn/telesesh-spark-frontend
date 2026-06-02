@@ -5,7 +5,7 @@ import { ADMIN_RESOURCES, fmtDate } from "@/lib/admin-data"
 import type { AdminResource } from "@/lib/admin-data"
 import { CATEGORY } from "@/lib/resources"
 import type { CategoryKey } from "@/lib/resources"
-import { C, RowBtn, Confirm, Plus, Search, Eye, Pencil, Trash2, X, Video, Headphones, FileText, Gamepad2, Sparkles, TrendingUp } from "./shared"
+import { C, RowBtn, Confirm, Plus, Search, Eye, Pencil, Trash2, X, Video, Headphones, FileText, Gamepad2, Sparkles } from "./shared"
 import type { LucideIcon } from "lucide-react"
 import ResourceForm from "./resource-form"
 
@@ -13,49 +13,89 @@ type Kind = "video" | "audio" | "doc" | "game"
 
 // ─── TypePickerModal ──────────────────────────────────────────────────────────
 
-const TYPE_CARDS: { kind: Kind; label: string; Icon: LucideIcon; desc: string; color: string; soft: string }[] = [
-  { kind: "video", label: "Video",    Icon: Video,      desc: "Upload or embed a video resource", color: "#2DB89E", soft: "#D4F1EA" },
-  { kind: "audio", label: "Audio",    Icon: Headphones, desc: "Audio clips, songs or narrations",  color: "#7A5BC9", soft: "#E8DFFF" },
-  { kind: "doc",   label: "Document", Icon: FileText,   desc: "PDFs, worksheets or printables",    color: "#E89B1C", soft: "#FFE9C2" },
-  { kind: "game",  label: "Game",     Icon: Gamepad2,   desc: "Interactive HTML5 games",           color: "#E84B6B", soft: "#FFD8E1" },
+const TYPE_CARDS: {
+  kind: Kind
+  label: string
+  Icon: LucideIcon
+  desc: string
+  color: string
+  soft: string
+  gradient: string
+}[] = [
+  {
+    kind: "video", label: "Video", Icon: Video,
+    desc: "Upload a file or embed YouTube / Vimeo",
+    color: "#2DB89E", soft: "#D4F1EA",
+    gradient: "linear-gradient(135deg,#2DB89E,#34D4B5)",
+  },
+  {
+    kind: "audio", label: "Audio", Icon: Headphones,
+    desc: "MP3 clips, songs or spoken narrations",
+    color: "#7A5BC9", soft: "#E8DFFF",
+    gradient: "linear-gradient(135deg,#7A5BC9,#9B7FE8)",
+  },
+  {
+    kind: "doc", label: "Document", Icon: FileText,
+    desc: "PDFs, worksheets or printable sheets",
+    color: "#E89B1C", soft: "#FFE9C2",
+    gradient: "linear-gradient(135deg,#E89B1C,#F5B84C)",
+  },
+  {
+    kind: "game", label: "Game", Icon: Gamepad2,
+    desc: "Interactive HTML5 games for learners",
+    color: "#E84B6B", soft: "#FFD8E1",
+    gradient: "linear-gradient(135deg,#E84B6B,#F0738C)",
+  },
 ]
 
-function TypePickerModal({
-  onSelect,
-  onClose,
-}: {
-  onSelect: (k: Kind) => void
-  onClose: () => void
-}) {
+function TypePickerModal({ onSelect, onClose }: { onSelect: (k: Kind) => void; onClose: () => void }) {
   const [hovered, setHovered] = useState<Kind | null>(null)
+
   return (
-    <div style={{
-      position: "fixed", inset: 0, zIndex: 500,
-      background: "rgba(42,47,74,0.45)", backdropFilter: "blur(4px)",
-      display: "flex", alignItems: "center", justifyContent: "center",
-    }} onClick={onClose}>
+    <div
+      style={{
+        position: "fixed", inset: 0, zIndex: 500,
+        background: "rgba(42,47,74,0.5)", backdropFilter: "blur(6px)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        padding: 24,
+      }}
+      onClick={onClose}
+    >
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: "#fff", borderRadius: 28, padding: "36px 40px",
-          width: 520, boxShadow: "0 32px 80px -16px rgba(40,20,10,0.3)",
+          background: "#fff", borderRadius: 28, padding: "40px 44px",
+          width: "100%", maxWidth: 580,
+          boxShadow: "0 40px 100px -20px rgba(40,20,10,0.35)",
           fontFamily: "var(--font-nunito)",
+          animation: "modalIn 0.22s cubic-bezier(.34,1.56,.64,1) both",
         }}
       >
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+        {/* Header */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 32 }}>
           <div>
-            <div style={{ fontSize: 20, fontWeight: 900, color: C.ink }}>Choose Resource Type</div>
-            <div style={{ fontSize: 13, color: C.muted, fontWeight: 600, marginTop: 2 }}>What kind of resource are you adding?</div>
+            <div style={{ fontSize: 22, fontWeight: 900, color: C.ink, letterSpacing: -0.4 }}>
+              Choose Resource Type
+            </div>
+            <div style={{ fontSize: 13.5, color: C.muted, fontWeight: 600, marginTop: 4 }}>
+              What kind of resource are you adding?
+            </div>
           </div>
-          <button type="button" onClick={onClose} style={{
-            width: 34, height: 34, borderRadius: 10, border: "none",
-            background: C.panelBg, color: C.muted,
-            cursor: "pointer", display: "grid", placeItems: "center", fontFamily: "inherit",
-          }}>
-            <X size={15} />
+          <button
+            type="button" onClick={onClose}
+            style={{
+              width: 36, height: 36, borderRadius: 10, border: "none",
+              background: C.panelBg, color: C.muted,
+              cursor: "pointer", display: "grid", placeItems: "center",
+              fontFamily: "inherit", flexShrink: 0, marginLeft: 16,
+            }}
+          >
+            <X size={16} />
           </button>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+
+        {/* Grid */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
           {TYPE_CARDS.map((card) => {
             const isHov = hovered === card.kind
             return (
@@ -66,21 +106,50 @@ function TypePickerModal({
                 onMouseEnter={() => setHovered(card.kind)}
                 onMouseLeave={() => setHovered(null)}
                 style={{
-                  padding: "22px 20px", borderRadius: 18, cursor: "pointer",
+                  padding: "24px 22px", borderRadius: 20, cursor: "pointer",
                   border: `2px solid ${isHov ? card.color : C.hairline}`,
                   background: isHov ? card.soft : "#FAF4ED",
                   textAlign: "left", fontFamily: "inherit",
                   transition: "all 0.18s ease",
-                  display: "flex", flexDirection: "column", gap: 8,
+                  display: "flex", flexDirection: "column", gap: 14,
+                  boxShadow: isHov ? `0 12px 32px -8px ${card.color}44` : "none",
+                  transform: isHov ? "translateY(-2px)" : "none",
                 }}
               >
-                <div style={{ width: 52, height: 52, borderRadius: 14, background: card.soft, color: card.color, display: "grid", placeItems: "center" }}><card.Icon size={26} /></div>
-                <div style={{ fontSize: 15, fontWeight: 900, color: isHov ? card.color : C.ink }}>{card.label}</div>
-                <div style={{ fontSize: 12.5, fontWeight: 600, color: C.muted, lineHeight: 1.4 }}>{card.desc}</div>
+                {/* Icon circle */}
+                <div style={{
+                  width: 56, height: 56, borderRadius: 16,
+                  background: isHov ? card.gradient : card.soft,
+                  color: isHov ? "#fff" : card.color,
+                  display: "grid", placeItems: "center",
+                  boxShadow: isHov ? `0 8px 20px -4px ${card.color}55` : "none",
+                  transition: "all 0.18s ease",
+                }}>
+                  <card.Icon size={28} strokeWidth={1.8} />
+                </div>
+
+                <div>
+                  <div style={{
+                    fontSize: 16, fontWeight: 900, color: isHov ? card.color : C.ink,
+                    marginBottom: 5, transition: "color 0.18s",
+                  }}>
+                    {card.label}
+                  </div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: C.muted, lineHeight: 1.45 }}>
+                    {card.desc}
+                  </div>
+                </div>
               </button>
             )
           })}
         </div>
+
+        <style>{`
+          @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.94) translateY(12px); }
+            to   { opacity: 1; transform: scale(1) translateY(0); }
+          }
+        `}</style>
       </div>
     </div>
   )
@@ -280,7 +349,6 @@ export default function ResourcesPage() {
                 onMouseEnter={(e) => (e.currentTarget.style.background = "#FDF8F1")}
                 onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
               >
-                {/* Thumbnail */}
                 <div style={{
                   width: 40, height: 40, borderRadius: 12,
                   background: item.thumbBg, display: "grid", placeItems: "center", fontSize: 22,
@@ -288,8 +356,6 @@ export default function ResourcesPage() {
                 }}>
                   {item.thumbEmoji}
                 </div>
-
-                {/* Title + desc */}
                 <div style={{ paddingRight: 12 }}>
                   <div style={{ fontSize: 14.5, fontWeight: 800, color: C.ink, lineHeight: 1.2 }}>
                     {item.title}
@@ -309,38 +375,23 @@ export default function ResourcesPage() {
                     {item.desc}
                   </div>
                 </div>
-
-                {/* Category badge */}
                 <span style={{
                   display: "inline-flex", alignItems: "center", gap: 5,
                   padding: "4px 10px", borderRadius: 999,
                   background: cat.soft, color: cat.color,
-                  fontWeight: 700, fontSize: 12.5,
-                  width: "fit-content",
+                  fontWeight: 700, fontSize: 12.5, width: "fit-content",
                 }}>
                   {"Icon" in cat && cat.Icon ? <cat.Icon size={11} /> : null} {cat.label}
                 </span>
-
-                {/* Date */}
                 <span style={{ fontSize: 13, fontWeight: 700, color: C.muted }}>{fmtDate(item.dateAdded)}</span>
-
-                {/* Actions */}
                 <div style={{ display: "flex", gap: 2 }}>
+                  <RowBtn icon={<Eye size={15} />} color={C.accent} bg={C.accentSft} title="Analytics" />
                   <RowBtn
-                    icon={<Eye size={15} />}
-                    color={C.accent} bg={C.accentSft}
-                    title="Analytics"
-                  />
-                  <RowBtn
-                    icon={<Pencil size={15} />}
-                    color={C.primary} bg={C.primarySft}
-                    title="Edit"
+                    icon={<Pencil size={15} />} color={C.primary} bg={C.primarySft} title="Edit"
                     onClick={() => { setEditItem(item); setFormKind(item.kind) }}
                   />
                   <RowBtn
-                    icon={<Trash2 size={15} />}
-                    color="#E84B6B" bg="#FFD8E1"
-                    title="Delete"
+                    icon={<Trash2 size={15} />} color="#E84B6B" bg="#FFD8E1" title="Delete"
                     onClick={() => setDeleteId(item.id)}
                   />
                 </div>
@@ -354,11 +405,10 @@ export default function ResourcesPage() {
         {filtered.length} of {resources.length} resources
       </div>
 
-      {/* Modals */}
       {showTypePicker && (
         <TypePickerModal onSelect={handleAddSelect} onClose={() => setShowTypePicker(false)} />
       )}
-      {(formKind !== null) && (
+      {formKind !== null && (
         <ResourceForm
           kind={formKind}
           initial={editItem ?? undefined}

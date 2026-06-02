@@ -44,7 +44,7 @@ export default function ListManager({
   }
 
   return (
-    <div style={{ fontFamily: "var(--font-nunito)", padding: "32px 36px", maxWidth: 760 }}>
+    <div style={{ fontFamily: "var(--font-nunito)", padding: "32px 48px", maxWidth: 900, margin: "0 auto" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 4 }}>
         {icon && (
           <div style={{

@@ -1,36 +1,101 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Telesesh Spark — Frontend
 
-## Getting Started
+Next.js 16 client for the Telesesh Spark therapy resource platform. Serves the learner-facing library, admin panel, billing, and user profile flows.
 
-First, run the development server:
+## Tech Stack
+
+| Layer | Choice |
+|---|---|
+| Framework | Next.js 16 (App Router) |
+| Language | TypeScript 5 |
+| UI | React 19, Lucide React icons |
+| Styling | Tailwind CSS v4 (PostCSS), inline design-token styles |
+| Auth | NextAuth v5 (Credentials + Google OAuth) |
+| Testing | Playwright (E2E) |
+
+## Prerequisites
+
+- Node.js ≥ 20 (`node --version`)
+- Backend API running at `http://localhost:3001` (see `backend/README.md`)
+
+## Setup
 
 ```bash
+cd frontend
+npm install
+cp .env.example .env.local   # fill in the values below
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Environment Variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+# .env.local
 
-## Learn More
+NEXTAUTH_SECRET=any-random-string-32-chars-min
+NEXTAUTH_URL=http://localhost:3000
 
-To learn more about Next.js, take a look at the following resources:
+NEXT_PUBLIC_API_URL=http://localhost:3001
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+GOOGLE_CLIENT_ID=your-google-oauth-client-id
+GOOGLE_CLIENT_SECRET=your-google-oauth-client-secret
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Scripts
 
-## Deploy on Vercel
+```bash
+npm run dev          # development server (hot reload)
+npm run build        # production build
+npm run start        # serve production build
+npm run lint         # ESLint
+npm run test:e2e     # Playwright headless
+npm run test:e2e:ui  # Playwright with UI runner
+npm run test:e2e:debug  # Playwright debug mode
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Project Structure
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+src/
+├── app/
+│   ├── (auth)/          # Login & registration pages
+│   ├── admin/           # Admin panel (dashboard, resources, sounds, tags, age-groups, settings)
+│   ├── billing/         # Subscription & billing
+│   ├── favorites/       # Saved resources
+│   ├── packages/        # Package browse/purchase
+│   ├── payment/         # Checkout flow
+│   ├── profile/         # User profile
+│   ├── settings/        # Account settings
+│   ├── api/             # Next.js API routes (auth callbacks)
+│   ├── layout.tsx        # Root layout (fonts, providers)
+│   └── page.tsx          # Library home page
+├── components/
+│   └── admin/           # Admin UI components (ResourceForm, ListManager, etc.)
+├── lib/                 # Shared utilities, mock data, resource constants
+├── providers/           # React context providers (session, etc.)
+├── types/               # Shared TypeScript types
+├── auth.ts              # NextAuth configuration
+└── proxy.ts             # API proxy helper
+```
+
+## Auth Flow
+
+1. User signs in via **email/password** or **Google OAuth**.
+2. NextAuth calls `POST /users/sign_in` (credentials) or `POST /api/v1/auth/google` (OAuth) on the Rails backend.
+3. The backend returns a **JWT** stored in the NextAuth session.
+4. All API requests include `Authorization: Bearer <jwt>`.
+
+## Admin Panel
+
+Accessible at `/admin`. Routes:
+
+| Path | Description |
+|---|---|
+| `/admin/dashboard` | Stats overview |
+| `/admin/resources` | Full resource CRUD (video, audio, document, game) |
+| `/admin/sounds` | Sound library management |
+| `/admin/tags` | Content tag management |
+| `/admin/age-groups` | Age group category management |
+| `/admin/settings` | Account & security settings |

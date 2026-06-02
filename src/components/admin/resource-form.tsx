@@ -3,7 +3,10 @@
 import { useState } from "react"
 import { AGE_OPTIONS, SERVICE_OPTIONS } from "@/lib/admin-data"
 import { ALL_TAGS } from "@/lib/resources"
-import { C, MultiDropdown, Check, X, Plus, Sparkles, Code2, Globe, FilePenLine, Video, Headphones, FileText, Gamepad2 } from "./shared"
+import {
+  C, MultiDropdown, Check, X, Plus, Sparkles, Code2, Globe,
+  FilePenLine, Video, Headphones, FileText, Gamepad2,
+} from "./shared"
 import type { AdminResource } from "@/lib/admin-data"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -21,16 +24,12 @@ interface FormState {
   goals: string[]
   tips: string
   kind: Kind
-  // video
   videoFile: string
   videoUrl: string
-  // audio
   audioFile: string
   transcript: string
-  // doc
   docFile: string
   allowDownload: boolean
-  // game
   gameTab: "ai" | "paste"
   aiPrompt: string
   pasteCode: string
@@ -78,43 +77,69 @@ async function mockGenerateGame(prompt: string): Promise<string> {
 
 // ─── Stepper ──────────────────────────────────────────────────────────────────
 
-function Stepper({ step }: { step: number }) {
+function Stepper({ step, kindColor }: { step: number; kindColor: string }) {
   const steps = ["Details", "Upload", "Preview & Publish"]
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 0, marginBottom: 32 }}>
+    <div style={{ display: "flex", alignItems: "center", marginBottom: 32 }}>
       {steps.map((label, i) => {
         const done    = i < step
         const active  = i === step
-        const pending = i > step
         return (
           <div key={i} style={{ display: "flex", alignItems: "center", flex: i < steps.length - 1 ? 1 : "none" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+              {/* Circle */}
               <div style={{
-                width: 34, height: 34, borderRadius: "50%", flexShrink: 0,
+                width: 36, height: 36, borderRadius: "50%", flexShrink: 0,
                 display: "grid", placeItems: "center",
-                background: done ? C.accent : active ? C.primary : C.hairline,
+                background: done
+                  ? `linear-gradient(135deg,${kindColor},${kindColor}CC)`
+                  : active
+                    ? C.primary
+                    : "#EDE6DC",
                 color: done || active ? "#fff" : C.muted,
                 fontWeight: 900, fontSize: 14,
-                boxShadow: active ? `0 6px 16px ${C.primary}44` : "none",
+                boxShadow: active ? `0 6px 18px ${C.primary}55` : done ? `0 4px 12px ${kindColor}44` : "none",
+                transition: "all 0.3s ease",
               }}>
-                {done ? <Check size={16} /> : i + 1}
+                {done ? <Check size={15} strokeWidth={3} /> : <span>{i + 1}</span>}
               </div>
+              {/* Label */}
               <span style={{
-                fontSize: 13.5, fontWeight: 800,
-                color: done ? C.accent : active ? C.primary : C.muted,
+                fontSize: 13, fontWeight: 800,
+                color: done ? kindColor : active ? C.primary : C.muted,
+                whiteSpace: "nowrap" as const,
+                transition: "color 0.3s ease",
               }}>
                 {label}
               </span>
             </div>
+            {/* Connector */}
             {i < steps.length - 1 && (
               <div style={{
-                flex: 1, height: 2, marginLeft: 10, marginRight: 10,
-                background: done ? C.accent : C.hairline,
+                flex: 1, height: 3, margin: "0 14px",
+                borderRadius: 3,
+                background: done ? kindColor : C.hairline,
+                transition: "background 0.4s ease",
               }} />
             )}
           </div>
         )
       })}
+    </div>
+  )
+}
+
+// ─── Section heading ──────────────────────────────────────────────────────────
+
+function SectionHeading({ children }: { children: React.ReactNode }) {
+  return (
+    <div style={{
+      fontSize: 11, fontWeight: 900, color: C.muted,
+      letterSpacing: 1.2, textTransform: "uppercase" as const,
+      marginBottom: 14, paddingBottom: 10,
+      borderBottom: `1px solid ${C.hairline}`,
+    }}>
+      {children}
     </div>
   )
 }
@@ -136,120 +161,146 @@ function Step1({ form, setForm }: { form: FormState; setForm: React.Dispatch<Rea
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-      {/* Title */}
-      <div>
-        <label style={labelStyle}>Title *</label>
-        <input
-          value={form.title} onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))}
-          placeholder="Resource title"
-          style={inputStyle}
-          onFocus={(e) => (e.currentTarget.style.borderColor = C.primary)}
-          onBlur={(e) => (e.currentTarget.style.borderColor = C.hairline)}
-        />
-      </div>
+    <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
 
-      {/* Description */}
-      <div>
-        <label style={labelStyle}>Description</label>
-        <textarea
-          value={form.desc} onChange={(e) => setForm((p) => ({ ...p, desc: e.target.value }))}
-          placeholder="Brief description of this resource…"
-          rows={3}
-          style={{ ...inputStyle, resize: "vertical" as const }}
-          onFocus={(e) => (e.currentTarget.style.borderColor = C.primary)}
-          onBlur={(e) => (e.currentTarget.style.borderColor = C.hairline)}
-        />
-      </div>
+      {/* — Basic info — */}
+      <section>
+        <SectionHeading>Basic Information</SectionHeading>
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div>
+            <label style={labelStyle}>Title <span style={{ color: C.primary }}>*</span></label>
+            <input
+              value={form.title}
+              onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))}
+              placeholder="Give this resource a clear, descriptive title"
+              style={inputStyle}
+              onFocus={(e) => (e.currentTarget.style.borderColor = C.primary)}
+              onBlur={(e) => (e.currentTarget.style.borderColor = C.hairline)}
+            />
+          </div>
+          <div>
+            <label style={labelStyle}>Description</label>
+            <textarea
+              value={form.desc}
+              onChange={(e) => setForm((p) => ({ ...p, desc: e.target.value }))}
+              placeholder="Briefly describe what this resource covers and who it's for…"
+              rows={3}
+              style={{ ...inputStyle, resize: "vertical" as const, lineHeight: 1.6 }}
+              onFocus={(e) => (e.currentTarget.style.borderColor = C.primary)}
+              onBlur={(e) => (e.currentTarget.style.borderColor = C.hairline)}
+            />
+          </div>
+        </div>
+      </section>
 
-      {/* Tags */}
-      <div>
-        <label style={labelStyle}>Tags</label>
-        <MultiDropdown
-          label="Select tags"
-          options={ALL_TAGS}
-          selected={form.tags}
-          onChange={(tags) => setForm((p) => ({ ...p, tags }))}
-        />
-      </div>
-
-      {/* Thumbnail */}
-      <div>
-        <label style={labelStyle}>Thumbnail</label>
-        <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-          {/* Preview */}
+      {/* — Thumbnail — */}
+      <section>
+        <SectionHeading>Thumbnail</SectionHeading>
+        <div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
+          {/* Large preview */}
           <div style={{
-            width: 80, height: 80, borderRadius: 16, flexShrink: 0,
-            background: form.thumbBg, display: "grid", placeItems: "center", fontSize: 36,
+            width: 96, height: 96, borderRadius: 20, flexShrink: 0,
+            background: form.thumbBg, display: "grid", placeItems: "center", fontSize: 44,
             border: `2px solid ${C.hairline}`,
+            boxShadow: "0 4px 16px rgba(40,20,10,0.08)",
           }}>
             {form.thumbEmoji}
           </div>
+
           <div style={{ flex: 1 }}>
-            {/* Emoji picker */}
-            <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 8, marginBottom: 10 }}>
-              {THUMB_EMOJIS.map((e) => (
-                <button
-                  key={e} type="button"
-                  onClick={() => setForm((p) => ({ ...p, thumbEmoji: e }))}
-                  style={{
-                    width: 36, height: 36, borderRadius: 10, border: `2px solid ${form.thumbEmoji === e ? C.primary : C.hairline}`,
-                    background: form.thumbEmoji === e ? C.primarySft : "#FAF4ED",
-                    fontSize: 20, cursor: "pointer",
-                  }}
-                >
-                  {e}
-                </button>
-              ))}
+            {/* Emoji row */}
+            <div style={{ marginBottom: 6 }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: C.muted, letterSpacing: 0.8, marginBottom: 8 }}>ICON</div>
+              <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 7 }}>
+                {THUMB_EMOJIS.map((e) => (
+                  <button
+                    key={e} type="button"
+                    onClick={() => setForm((p) => ({ ...p, thumbEmoji: e }))}
+                    style={{
+                      width: 38, height: 38, borderRadius: 10,
+                      border: `2px solid ${form.thumbEmoji === e ? C.primary : C.hairline}`,
+                      background: form.thumbEmoji === e ? C.primarySft : "#FAF4ED",
+                      fontSize: 20, cursor: "pointer",
+                      transition: "all 0.15s ease",
+                      display: "grid", placeItems: "center",
+                    }}
+                  >
+                    {e}
+                  </button>
+                ))}
+              </div>
             </div>
-            {/* BG picker */}
-            <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 8 }}>
-              {THUMB_BGS.map((bg) => (
-                <button
-                  key={bg} type="button"
-                  onClick={() => setForm((p) => ({ ...p, thumbBg: bg }))}
-                  style={{
-                    width: 28, height: 28, borderRadius: 8,
-                    background: bg, cursor: "pointer",
-                    border: form.thumbBg === bg ? `3px solid ${C.primary}` : `2px solid ${C.hairline}`,
-                  }}
-                />
-              ))}
+
+            {/* Color row */}
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 800, color: C.muted, letterSpacing: 0.8, marginBottom: 8, marginTop: 12 }}>BACKGROUND</div>
+              <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 8 }}>
+                {THUMB_BGS.map((bg) => (
+                  <button
+                    key={bg} type="button"
+                    onClick={() => setForm((p) => ({ ...p, thumbBg: bg }))}
+                    style={{
+                      width: 32, height: 32, borderRadius: 10,
+                      background: bg, cursor: "pointer",
+                      border: form.thumbBg === bg
+                        ? `3px solid ${C.primary}`
+                        : `2px solid ${C.hairline}`,
+                      boxShadow: form.thumbBg === bg ? `0 0 0 3px ${C.primarySft}` : "none",
+                      transition: "all 0.15s ease",
+                    }}
+                  />
+                ))}
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Service + Age row */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-        <div>
-          <label style={labelStyle}>Services</label>
-          <MultiDropdown
-            label="Select services"
-            options={SERVICE_OPTIONS}
-            selected={form.services}
-            onChange={(services) => setForm((p) => ({ ...p, services }))}
-          />
+      {/* — Categorization — */}
+      <section>
+        <SectionHeading>Categorization</SectionHeading>
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div>
+            <label style={labelStyle}>Tags</label>
+            <MultiDropdown
+              label="Select tags"
+              options={ALL_TAGS}
+              selected={form.tags}
+              onChange={(tags) => setForm((p) => ({ ...p, tags }))}
+            />
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+            <div>
+              <label style={labelStyle}>Services</label>
+              <MultiDropdown
+                label="Select services"
+                options={SERVICE_OPTIONS}
+                selected={form.services}
+                onChange={(services) => setForm((p) => ({ ...p, services }))}
+              />
+            </div>
+            <div>
+              <label style={labelStyle}>Age Groups</label>
+              <MultiDropdown
+                label="Select age groups"
+                options={AGE_OPTIONS}
+                selected={form.ages}
+                onChange={(ages) => setForm((p) => ({ ...p, ages }))}
+              />
+            </div>
+          </div>
         </div>
-        <div>
-          <label style={labelStyle}>Age Groups</label>
-          <MultiDropdown
-            label="Select age groups"
-            options={AGE_OPTIONS}
-            selected={form.ages}
-            onChange={(ages) => setForm((p) => ({ ...p, ages }))}
-          />
-        </div>
-      </div>
+      </section>
 
-      {/* Learning Goals */}
-      <div>
-        <label style={labelStyle}>Learning Goals</label>
-        <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+      {/* — Learning Goals — */}
+      <section>
+        <SectionHeading>Learning Goals</SectionHeading>
+        <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
           <input
-            value={goalInput} onChange={(e) => setGoalInput(e.target.value)}
+            value={goalInput}
+            onChange={(e) => setGoalInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addGoal())}
-            placeholder="Add a learning goal…"
+            placeholder="Type a learning goal and press Enter…"
             style={{ ...inputStyle, flex: 1 }}
             onFocus={(e) => (e.currentTarget.style.borderColor = C.primary)}
             onBlur={(e) => (e.currentTarget.style.borderColor = C.hairline)}
@@ -260,48 +311,51 @@ function Step1({ form, setForm }: { form: FormState; setForm: React.Dispatch<Rea
               padding: "11px 16px", borderRadius: 12, border: "none",
               background: C.primary, color: "#fff",
               fontWeight: 800, fontSize: 13, cursor: "pointer", fontFamily: "inherit",
+              flexShrink: 0,
             }}
           >
-            <Plus size={14} />
+            <Plus size={15} />
           </button>
         </div>
-        <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 8 }}>
-          {form.goals.map((g, i) => (
-            <span key={i} style={{
-              display: "inline-flex", alignItems: "center", gap: 6,
-              padding: "5px 10px 5px 12px", borderRadius: 999,
-              background: C.accentSft, color: C.accent, fontWeight: 700, fontSize: 13,
-            }}>
-              {g}
-              <button
-                type="button"
-                onClick={() => removeGoal(i)}
-                style={{
-                  width: 18, height: 18, borderRadius: "50%", border: "none",
-                  background: C.accent, color: "#fff",
-                  cursor: "pointer", display: "grid", placeItems: "center",
-                  fontFamily: "inherit",
-                }}
-              >
-                <X size={10} />
-              </button>
-            </span>
-          ))}
-        </div>
-      </div>
+        {form.goals.length > 0 && (
+          <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 8 }}>
+            {form.goals.map((g, i) => (
+              <span key={i} style={{
+                display: "inline-flex", alignItems: "center", gap: 6,
+                padding: "6px 10px 6px 13px", borderRadius: 999,
+                background: C.accentSft, color: C.accent, fontWeight: 700, fontSize: 13,
+              }}>
+                {g}
+                <button
+                  type="button" onClick={() => removeGoal(i)}
+                  style={{
+                    width: 18, height: 18, borderRadius: "50%", border: "none",
+                    background: C.accent, color: "#fff",
+                    cursor: "pointer", display: "grid", placeItems: "center",
+                    fontFamily: "inherit",
+                  }}
+                >
+                  <X size={10} />
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
+      </section>
 
-      {/* Tips */}
-      <div>
-        <label style={labelStyle}>Therapist Tips</label>
+      {/* — Tips — */}
+      <section>
+        <SectionHeading>Therapist Tips <span style={{ fontWeight: 600, letterSpacing: 0 }}>(optional)</span></SectionHeading>
         <textarea
-          value={form.tips} onChange={(e) => setForm((p) => ({ ...p, tips: e.target.value }))}
-          placeholder="Optional tips for using this resource…"
+          value={form.tips}
+          onChange={(e) => setForm((p) => ({ ...p, tips: e.target.value }))}
+          placeholder="Add guidance notes for therapists using this resource…"
           rows={2}
-          style={{ ...inputStyle, resize: "vertical" as const }}
+          style={{ ...inputStyle, resize: "vertical" as const, lineHeight: 1.6 }}
           onFocus={(e) => (e.currentTarget.style.borderColor = C.primary)}
           onBlur={(e) => (e.currentTarget.style.borderColor = C.hairline)}
         />
-      </div>
+      </section>
     </div>
   )
 }
@@ -335,191 +389,222 @@ function Step2({ form, setForm }: { form: FormState; setForm: React.Dispatch<Rea
 
   if (form.kind === "video") {
     return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-        <div>
-          <label style={labelStyle}>Video File</label>
-          <div style={dropZoneStyle}>
-            <div style={{ fontSize: 32, marginBottom: 8 }}>🎬</div>
-            <div style={{ fontWeight: 800, color: C.ink, fontSize: 14 }}>Drop video file here</div>
-            <div style={{ color: C.muted, fontSize: 13, marginTop: 4 }}>MP4, WebM or MOV · Max 500 MB</div>
-            {form.videoFile && <div style={{ marginTop: 8, fontSize: 13, fontWeight: 700, color: C.accent }}>{form.videoFile}</div>}
-          </div>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+        <section>
+          <SectionHeading>Video File</SectionHeading>
+          <label
+            style={{
+              ...dropZoneStyle,
+              cursor: "pointer",
+              display: "block",
+            }}
+          >
+            <input type="file" accept="video/*" style={{ display: "none" }} />
+            <div style={{ fontSize: 36, marginBottom: 10 }}>🎬</div>
+            <div style={{ fontWeight: 800, color: C.ink, fontSize: 14.5 }}>Drop video here or click to browse</div>
+            <div style={{ color: C.muted, fontSize: 13, marginTop: 6 }}>MP4, WebM or MOV · Max 500 MB</div>
+            {form.videoFile && (
+              <div style={{ marginTop: 10, fontSize: 13, fontWeight: 700, color: C.accent }}>
+                ✓ {form.videoFile}
+              </div>
+            )}
+          </label>
+        </section>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <div style={{ flex: 1, height: 1, background: C.hairline }} />
-          <span style={{ fontSize: 12, fontWeight: 800, color: C.muted }}>OR</span>
+          <span style={{
+            padding: "4px 14px", borderRadius: 999,
+            background: C.panelBg, fontSize: 12, fontWeight: 800, color: C.muted,
+          }}>OR</span>
           <div style={{ flex: 1, height: 1, background: C.hairline }} />
         </div>
-        <div>
-          <label style={labelStyle}>Embed URL</label>
+
+        <section>
+          <SectionHeading>Embed URL</SectionHeading>
           <input
-            value={form.videoUrl} onChange={(e) => setForm((p) => ({ ...p, videoUrl: e.target.value }))}
+            value={form.videoUrl}
+            onChange={(e) => setForm((p) => ({ ...p, videoUrl: e.target.value }))}
             placeholder="https://youtube.com/watch?v=…"
             style={inputStyle}
             onFocus={(e) => (e.currentTarget.style.borderColor = C.primary)}
             onBlur={(e) => (e.currentTarget.style.borderColor = C.hairline)}
           />
-        </div>
+          <div style={{ fontSize: 12.5, color: C.muted, fontWeight: 600, marginTop: 6 }}>
+            Supports YouTube, Vimeo and direct video links.
+          </div>
+        </section>
       </div>
     )
   }
 
   if (form.kind === "audio") {
     return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-        <div>
-          <label style={labelStyle}>Audio File</label>
-          <div style={dropZoneStyle}>
-            <div style={{ fontSize: 32, marginBottom: 8 }}>🎵</div>
-            <div style={{ fontWeight: 800, color: C.ink, fontSize: 14 }}>Drop audio file here</div>
-            <div style={{ color: C.muted, fontSize: 13, marginTop: 4 }}>MP3, WAV or AAC · Max 50 MB</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+        <section>
+          <SectionHeading>Audio File</SectionHeading>
+          <label style={{ ...dropZoneStyle, cursor: "pointer", display: "block" }}>
+            <input type="file" accept="audio/*" style={{ display: "none" }} />
+            <div style={{ fontSize: 36, marginBottom: 10 }}>🎵</div>
+            <div style={{ fontWeight: 800, color: C.ink, fontSize: 14.5 }}>Drop audio here or click to browse</div>
+            <div style={{ color: C.muted, fontSize: 13, marginTop: 6 }}>MP3, WAV or AAC · Max 50 MB</div>
             {form.audioFile && (
               <>
-                <div style={{ marginTop: 8, fontSize: 13, fontWeight: 700, color: C.accent }}>{form.audioFile}</div>
-                {/* Waveform preview */}
-                <div style={{ display: "flex", alignItems: "flex-end", gap: 3, marginTop: 12, height: 32 }}>
-                  {Array.from({ length: 24 }, (_, i) => {
+                <div style={{ marginTop: 10, fontSize: 13, fontWeight: 700, color: C.accent }}>✓ {form.audioFile}</div>
+                <div style={{ display: "flex", alignItems: "flex-end", gap: 3, marginTop: 14, height: 32, justifyContent: "center" }}>
+                  {Array.from({ length: 28 }, (_, i) => {
                     const h = 8 + Math.abs(Math.sin(i * 1.3) * 24)
                     return (
-                      <div key={i} style={{
-                        width: 4, height: h, borderRadius: 2,
-                        background: C.accent, opacity: 0.7,
-                      }} />
+                      <div key={i} style={{ width: 3, height: h, borderRadius: 2, background: C.accent, opacity: 0.7 }} />
                     )
                   })}
                 </div>
               </>
             )}
-          </div>
-        </div>
-        <div>
-          <label style={labelStyle}>Transcript</label>
+          </label>
+        </section>
+        <section>
+          <SectionHeading>Transcript <span style={{ fontWeight: 600, letterSpacing: 0 }}>(optional)</span></SectionHeading>
           <textarea
             value={form.transcript}
             onChange={(e) => setForm((p) => ({ ...p, transcript: e.target.value }))}
-            placeholder="Paste or type the audio transcript here…"
-            rows={4}
-            style={{ ...inputStyle, resize: "vertical" as const }}
+            placeholder="Paste or type the audio transcript here — helps with accessibility…"
+            rows={5}
+            style={{ ...inputStyle, resize: "vertical" as const, lineHeight: 1.6 }}
             onFocus={(e) => (e.currentTarget.style.borderColor = C.primary)}
             onBlur={(e) => (e.currentTarget.style.borderColor = C.hairline)}
           />
-        </div>
+        </section>
       </div>
     )
   }
 
   if (form.kind === "doc") {
     return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-        <div>
-          <label style={labelStyle}>Document File</label>
-          <div style={dropZoneStyle}>
-            <div style={{ fontSize: 32, marginBottom: 8 }}>📄</div>
-            <div style={{ fontWeight: 800, color: C.ink, fontSize: 14 }}>Drop document here</div>
-            <div style={{ color: C.muted, fontSize: 13, marginTop: 4 }}>PDF, DOCX or PPTX · Max 100 MB</div>
-            {form.docFile && <div style={{ marginTop: 8, fontSize: 13, fontWeight: 700, color: C.accent }}>{form.docFile}</div>}
-          </div>
-        </div>
-        <div style={{
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-          padding: "14px 18px", borderRadius: 14,
-          border: `2px solid ${C.hairline}`, background: "#FAF4ED",
-        }}>
-          <div>
-            <div style={{ fontSize: 14, fontWeight: 800, color: C.ink }}>Allow Download</div>
-            <div style={{ fontSize: 12.5, color: C.muted, fontWeight: 600, marginTop: 2 }}>
-              Let learners download this document
+      <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+        <section>
+          <SectionHeading>Document File</SectionHeading>
+          <label style={{ ...dropZoneStyle, cursor: "pointer", display: "block" }}>
+            <input type="file" accept=".pdf,.docx,.pptx" style={{ display: "none" }} />
+            <div style={{ fontSize: 36, marginBottom: 10 }}>📄</div>
+            <div style={{ fontWeight: 800, color: C.ink, fontSize: 14.5 }}>Drop document here or click to browse</div>
+            <div style={{ color: C.muted, fontSize: 13, marginTop: 6 }}>PDF, DOCX or PPTX · Max 100 MB</div>
+            {form.docFile && (
+              <div style={{ marginTop: 10, fontSize: 13, fontWeight: 700, color: C.accent }}>✓ {form.docFile}</div>
+            )}
+          </label>
+        </section>
+
+        <section>
+          <SectionHeading>Download Settings</SectionHeading>
+          <div style={{
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            padding: "16px 20px", borderRadius: 16,
+            border: `2px solid ${form.allowDownload ? C.accent : C.hairline}`,
+            background: form.allowDownload ? C.accentSft : "#FAF4ED",
+            transition: "all 0.2s ease",
+          }}>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 800, color: C.ink }}>Allow Download</div>
+              <div style={{ fontSize: 12.5, color: C.muted, fontWeight: 600, marginTop: 3 }}>
+                Learners can download this document to their device
+              </div>
             </div>
+            <button
+              type="button"
+              onClick={() => setForm((p) => ({ ...p, allowDownload: !p.allowDownload }))}
+              style={{
+                width: 52, height: 28, borderRadius: 999, border: "none",
+                background: form.allowDownload ? C.accent : "#D6C8B6",
+                cursor: "pointer", position: "relative", transition: "background 0.25s",
+                fontFamily: "inherit", flexShrink: 0,
+              }}
+            >
+              <div style={{
+                width: 22, height: 22, borderRadius: "50%", background: "#fff",
+                position: "absolute", top: 3,
+                left: form.allowDownload ? 27 : 3,
+                transition: "left 0.25s ease",
+                boxShadow: "0 2px 6px rgba(0,0,0,0.18)",
+              }} />
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={() => setForm((p) => ({ ...p, allowDownload: !p.allowDownload }))}
-            style={{
-              width: 48, height: 26, borderRadius: 999, border: "none",
-              background: form.allowDownload ? C.primary : "#D6C8B6",
-              cursor: "pointer", position: "relative", transition: "background 0.2s",
-              fontFamily: "inherit",
-            }}
-          >
-            <div style={{
-              width: 20, height: 20, borderRadius: "50%", background: "#fff",
-              position: "absolute", top: 3,
-              left: form.allowDownload ? 24 : 4,
-              transition: "left 0.2s",
-              boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
-            }} />
-          </button>
-        </div>
+        </section>
       </div>
     )
   }
 
-  // game
+  // ── Game ──
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
       {/* Tab switcher */}
-      <div style={{ display: "flex", gap: 0, background: C.panelBg, borderRadius: 12, padding: 4, width: "fit-content" }}>
+      <div style={{
+        display: "flex", gap: 4,
+        background: C.panelBg, borderRadius: 14, padding: 5,
+        border: `1px solid ${C.hairline}`,
+      }}>
         {(["ai", "paste"] as const).map((tab) => (
           <button
             key={tab} type="button"
             onClick={() => setForm((p) => ({ ...p, gameTab: tab }))}
             style={{
-              padding: "8px 18px", borderRadius: 10, border: "none",
+              flex: 1, padding: "10px 16px", borderRadius: 10, border: "none",
               background: form.gameTab === tab ? "#fff" : "transparent",
               color: form.gameTab === tab ? C.ink : C.muted,
               fontWeight: 800, fontSize: 13.5, cursor: "pointer", fontFamily: "inherit",
-              boxShadow: form.gameTab === tab ? "0 2px 8px rgba(40,20,10,0.1)" : "none",
+              boxShadow: form.gameTab === tab ? "0 2px 10px rgba(40,20,10,0.1)" : "none",
+              transition: "all 0.18s ease",
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 7,
             }}
           >
             {tab === "ai"
-              ? <><Sparkles size={14} style={{ display: "inline", verticalAlign: "middle", marginRight: 6 }} />AI Prompt Builder</>
-              : <><Code2 size={14} style={{ display: "inline", verticalAlign: "middle", marginRight: 6 }} />Paste Code</>
+              ? <><Sparkles size={14} /> AI Prompt Builder</>
+              : <><Code2 size={14} /> Paste HTML Code</>
             }
           </button>
         ))}
       </div>
 
       {form.gameTab === "ai" ? (
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          {/* Suggestion chips */}
-          <div>
-            <label style={labelStyle}>Quick Suggestions</label>
+        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+          <section>
+            <SectionHeading>Quick Suggestions</SectionHeading>
             <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 8 }}>
               {PROMPT_CHIPS.map((chip) => (
                 <button
                   key={chip} type="button"
                   onClick={() => setForm((p) => ({ ...p, aiPrompt: chip }))}
                   style={{
-                    padding: "6px 12px", borderRadius: 999,
+                    padding: "7px 14px", borderRadius: 999,
                     border: `2px solid ${form.aiPrompt === chip ? C.primary : C.hairline}`,
                     background: form.aiPrompt === chip ? C.primarySft : "#FAF4ED",
                     color: form.aiPrompt === chip ? C.primary : C.muted,
-                    fontWeight: 700, fontSize: 12.5, cursor: "pointer", fontFamily: "inherit",
+                    fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: "inherit",
+                    transition: "all 0.15s ease",
                   }}
                 >
                   {chip}
                 </button>
               ))}
             </div>
-          </div>
+          </section>
 
-          {/* Prompt textarea */}
-          <div>
-            <label style={labelStyle}>Describe your game</label>
+          <section>
+            <SectionHeading>Describe Your Game</SectionHeading>
             <textarea
               value={form.aiPrompt}
               onChange={(e) => setForm((p) => ({ ...p, aiPrompt: e.target.value }))}
-              placeholder="e.g. A matching game where children match animal sounds to pictures. Include 6 pairs…"
+              placeholder="e.g. A matching game where children match animal sounds to pictures. Include 6 pairs and a score counter…"
               rows={4}
-              style={{ ...inputStyle, resize: "vertical" as const }}
+              style={{ ...inputStyle, resize: "vertical" as const, lineHeight: 1.6 }}
               onFocus={(e) => (e.currentTarget.style.borderColor = C.primary)}
               onBlur={(e) => (e.currentTarget.style.borderColor = C.hairline)}
             />
-          </div>
+          </section>
 
           {genError && (
             <div style={{
-              padding: "10px 14px", borderRadius: 10,
+              padding: "12px 16px", borderRadius: 12,
               background: "#FFD8E1", color: "#B03050",
               fontWeight: 700, fontSize: 13.5,
             }}>
@@ -528,21 +613,28 @@ function Step2({ form, setForm }: { form: FormState; setForm: React.Dispatch<Rea
           )}
 
           <button
-            type="button"
-            onClick={handleGenerate}
+            type="button" onClick={handleGenerate}
             disabled={generating || !form.aiPrompt.trim()}
             style={{
               display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-              padding: "13px 24px", borderRadius: 14, border: "none",
-              background: generating ? C.hairline : C.primary, color: generating ? C.muted : "#fff",
-              fontWeight: 800, fontSize: 14, cursor: generating ? "not-allowed" : "pointer",
+              padding: "14px 24px", borderRadius: 14, border: "none",
+              background: generating ? C.hairline : C.primary,
+              color: generating ? C.muted : "#fff",
+              fontWeight: 800, fontSize: 14,
+              cursor: generating || !form.aiPrompt.trim() ? "not-allowed" : "pointer",
               fontFamily: "inherit",
               boxShadow: generating ? "none" : "0 8px 18px rgba(215,107,63,0.35)",
+              opacity: !generating && !form.aiPrompt.trim() ? 0.6 : 1,
+              transition: "all 0.2s ease",
             }}
           >
             {generating ? (
               <>
-                <span style={{ display: "inline-block", width: 16, height: 16, border: "2px solid currentColor", borderTopColor: "transparent", borderRadius: "50%", animation: "spin-slow 0.6s linear infinite" }} />
+                <span style={{
+                  display: "inline-block", width: 16, height: 16,
+                  border: "2.5px solid currentColor", borderTopColor: "transparent",
+                  borderRadius: "50%", animation: "spinLoader 0.6s linear infinite",
+                }} />
                 Building your game…
               </>
             ) : (
@@ -551,27 +643,35 @@ function Step2({ form, setForm }: { form: FormState; setForm: React.Dispatch<Rea
           </button>
 
           {form.generatedHtml && !generating && (
-            <div>
-              <label style={labelStyle}>Preview</label>
+            <section>
+              <SectionHeading>Preview</SectionHeading>
               <iframe
                 srcDoc={form.generatedHtml}
                 sandbox="allow-scripts allow-pointer-lock"
                 referrerPolicy="no-referrer"
-                style={{ width: "100%", height: 300, borderRadius: 14, border: `2px solid ${C.hairline}` }}
+                style={{
+                  width: "100%", height: 300, borderRadius: 16,
+                  border: `2px solid ${C.hairline}`,
+                }}
               />
-            </div>
+            </section>
           )}
+
+          <style>{`
+            @keyframes spinLoader { to { transform: rotate(360deg); } }
+          `}</style>
         </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
-              <label style={labelStyle}>HTML Game Code</label>
+        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+          <section>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+              <SectionHeading>HTML Game Code</SectionHeading>
               {pasteValid !== null && (
                 <span style={{
                   fontSize: 12, fontWeight: 800,
                   color: pasteValid ? "#1A8A70" : "#B03050",
                   display: "flex", alignItems: "center", gap: 4,
+                  marginTop: -4,
                 }}>
                   {pasteValid ? <Check size={13} /> : <X size={13} />}
                   {pasteValid ? "Valid HTML" : "Looks incomplete"}
@@ -581,30 +681,34 @@ function Step2({ form, setForm }: { form: FormState; setForm: React.Dispatch<Rea
             <textarea
               value={form.pasteCode}
               onChange={(e) => handlePasteChange(e.target.value)}
-              placeholder="<!doctype html><html>…"
+              placeholder={'<!doctype html>\n<html>\n  <head><meta charset="utf-8"/></head>\n  <body>…</body>\n</html>'}
               rows={12}
               spellCheck={false}
               style={{
-                width: "100%", padding: "14px", borderRadius: 12,
+                width: "100%", padding: "16px", borderRadius: 14,
                 border: `2px solid ${pasteValid === false ? "#E84B6B" : C.hairline}`,
-                background: "#1E1E2E", color: "#CDD6F4",
+                background: "#1A1B2E", color: "#CDD6F4",
                 fontFamily: "'Courier New', monospace",
-                fontSize: 13, lineHeight: 1.6, outline: "none",
+                fontSize: 13, lineHeight: 1.65, outline: "none",
                 resize: "vertical" as const,
+                transition: "border-color 0.18s",
               }}
             />
-          </div>
+          </section>
 
           {form.pasteCode && pasteValid && (
-            <div>
-              <label style={labelStyle}>Live Preview</label>
+            <section>
+              <SectionHeading>Live Preview</SectionHeading>
               <iframe
                 srcDoc={form.pasteCode}
                 sandbox="allow-scripts allow-pointer-lock"
                 referrerPolicy="no-referrer"
-                style={{ width: "100%", height: 280, borderRadius: 14, border: `2px solid ${C.hairline}` }}
+                style={{
+                  width: "100%", height: 280, borderRadius: 16,
+                  border: `2px solid ${C.hairline}`,
+                }}
               />
-            </div>
+            </section>
           )}
         </div>
       )}
@@ -615,66 +719,78 @@ function Step2({ form, setForm }: { form: FormState; setForm: React.Dispatch<Rea
 // ─── Step 3 ───────────────────────────────────────────────────────────────────
 
 function Step3({
-  form,
-  kind,
-  onPublish,
-  onDraft,
+  form, kind, onPublish, onDraft,
 }: {
-  form: FormState
-  kind: Kind
-  onPublish: () => void
-  onDraft: () => void
+  form: FormState; kind: Kind; onPublish: () => void; onDraft: () => void
 }) {
-  const catColors: Record<Kind, { color: string; soft: string; Icon: React.ComponentType<{ size?: number }> }> = {
-    video: { color: "#2DB89E", soft: "#D4F1EA", Icon: Video      },
-    audio: { color: "#7A5BC9", soft: "#E8DFFF", Icon: Headphones },
-    doc:   { color: "#E89B1C", soft: "#FFE9C2", Icon: FileText   },
-    game:  { color: "#E84B6B", soft: "#FFD8E1", Icon: Gamepad2   },
+  const catColors: Record<Kind, { color: string; soft: string; gradient: string; Icon: React.ComponentType<{ size?: number }> }> = {
+    video: { color: "#2DB89E", soft: "#D4F1EA", gradient: "linear-gradient(135deg,#2DB89E,#34D4B5)", Icon: Video      },
+    audio: { color: "#7A5BC9", soft: "#E8DFFF", gradient: "linear-gradient(135deg,#7A5BC9,#9B7FE8)", Icon: Headphones },
+    doc:   { color: "#E89B1C", soft: "#FFE9C2", gradient: "linear-gradient(135deg,#E89B1C,#F5B84C)", Icon: FileText   },
+    game:  { color: "#E84B6B", soft: "#FFD8E1", gradient: "linear-gradient(135deg,#E84B6B,#F0738C)", Icon: Gamepad2   },
   }
   const cat = catColors[kind]
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-      {/* Thumbnail preview */}
+    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+      {/* Hero thumbnail */}
       <div style={{
-        background: form.thumbBg, borderRadius: 20, height: 140,
-        display: "flex", alignItems: "center", justifyContent: "center", fontSize: 72,
+        background: form.thumbBg, borderRadius: 20, height: 160,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        fontSize: 80,
+        boxShadow: "inset 0 -4px 16px rgba(40,20,10,0.06)",
       }}>
         {form.thumbEmoji}
       </div>
 
-      {/* Summary card */}
-      <div style={{
-        background: C.panelBg, borderRadius: 16, padding: "20px 22px",
-        border: `1px solid ${C.hairline}`, display: "flex", flexDirection: "column", gap: 14,
-      }}>
-        <SummaryRow label="Title" value={form.title || "—"} />
-        <SummaryRow label="Description" value={form.desc || "—"} />
-        <SummaryRow label="Type" value={
-          <span style={{
-            display: "inline-flex", alignItems: "center", gap: 6,
-            padding: "3px 10px", borderRadius: 999,
-            background: cat.soft, color: cat.color, fontWeight: 700, fontSize: 12.5,
-          }}>
-            <cat.Icon size={11} /> {kind.charAt(0).toUpperCase() + kind.slice(1)}
-          </span>
-        } />
-        {form.tags.length > 0 && (
-          <SummaryRow label="Tags" value={form.tags.join(", ")} />
-        )}
-        {form.ages.length > 0 && (
-          <SummaryRow label="Age Groups" value={form.ages.join(", ")} />
-        )}
-        {form.services.length > 0 && (
-          <SummaryRow label="Services" value={form.services.join(", ")} />
-        )}
-        {form.goals.length > 0 && (
-          <SummaryRow label="Learning Goals" value={form.goals.join(" · ")} />
-        )}
-        {form.tips && <SummaryRow label="Tips" value={form.tips} />}
-      </div>
+      {/* Summary */}
+      <section>
+        <SectionHeading>Summary</SectionHeading>
+        <div style={{
+          background: C.panelBg, borderRadius: 16,
+          border: `1px solid ${C.hairline}`,
+          overflow: "hidden",
+        }}>
+          {[
+            { label: "Title",         value: form.title || "—" },
+            { label: "Description",   value: form.desc || "—" },
+            { label: "Type",          value: (
+              <span style={{
+                display: "inline-flex", alignItems: "center", gap: 6,
+                padding: "3px 10px", borderRadius: 999,
+                background: cat.soft, color: cat.color, fontWeight: 700, fontSize: 12.5,
+              }}>
+                <cat.Icon size={11} /> {kind.charAt(0).toUpperCase() + kind.slice(1)}
+              </span>
+            )},
+            ...(form.tags.length     ? [{ label: "Tags",          value: form.tags.join(", ") }] : []),
+            ...(form.ages.length     ? [{ label: "Age Groups",    value: form.ages.join(", ") }] : []),
+            ...(form.services.length ? [{ label: "Services",      value: form.services.join(", ") }] : []),
+            ...(form.goals.length    ? [{ label: "Goals",         value: form.goals.join(" · ") }] : []),
+            ...(form.tips            ? [{ label: "Tips",          value: form.tips }] : []),
+          ].map((row, i, arr) => (
+            <div
+              key={row.label}
+              style={{
+                display: "flex", alignItems: "flex-start", gap: 16,
+                padding: "13px 18px",
+                borderBottom: i < arr.length - 1 ? `1px solid ${C.hairline}` : "none",
+              }}
+            >
+              <span style={{
+                minWidth: 100, fontSize: 11.5, fontWeight: 900,
+                color: C.muted, letterSpacing: 0.5, paddingTop: 3,
+                textTransform: "uppercase" as const,
+              }}>
+                {row.label}
+              </span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: C.ink, flex: 1 }}>{row.value}</span>
+            </div>
+          ))}
+        </div>
+      </section>
 
-      {/* Publish buttons */}
+      {/* Publish row */}
       <div style={{ display: "flex", gap: 12 }}>
         <button
           type="button" onClick={onDraft}
@@ -684,6 +800,15 @@ function Step3({
             color: C.muted, fontWeight: 800, fontSize: 14,
             cursor: "pointer", fontFamily: "inherit",
             display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+            transition: "all 0.15s ease",
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.borderColor = C.ink
+            ;(e.currentTarget as HTMLButtonElement).style.color = C.ink
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.borderColor = C.hairline
+            ;(e.currentTarget as HTMLButtonElement).style.color = C.muted
           }}
         >
           <FilePenLine size={16} /> Save as Draft
@@ -692,10 +817,10 @@ function Step3({
           type="button" onClick={onPublish}
           style={{
             flex: 2, padding: "14px", borderRadius: 14, border: "none",
-            background: C.primary, color: "#fff",
+            background: cat.gradient, color: "#fff",
             fontWeight: 800, fontSize: 14, cursor: "pointer",
             fontFamily: "inherit",
-            boxShadow: "0 8px 18px rgba(215,107,63,0.35)",
+            boxShadow: `0 8px 24px ${cat.color}55`,
             display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
           }}
         >
@@ -706,18 +831,7 @@ function Step3({
   )
 }
 
-function SummaryRow({ label, value }: { label: string; value: React.ReactNode }) {
-  return (
-    <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
-      <span style={{ minWidth: 110, fontSize: 12.5, fontWeight: 800, color: C.muted, letterSpacing: 0.2, paddingTop: 2 }}>
-        {label.toUpperCase()}
-      </span>
-      <span style={{ fontSize: 14, fontWeight: 700, color: C.ink, flex: 1 }}>{value}</span>
-    </div>
-  )
-}
-
-// ─── ResourceForm ─────────────────────────────────────────────────────────────
+// ─── ResourceForm (main) ──────────────────────────────────────────────────────
 
 interface ResourceFormProps {
   kind: Kind
@@ -726,112 +840,180 @@ interface ResourceFormProps {
   onSave: (data: { status: "published" | "draft"; form: FormState }) => void
 }
 
+const KIND_META: Record<Kind, { color: string; soft: string; gradient: string; Icon: React.ComponentType<{ size?: number }> }> = {
+  video: { color: "#2DB89E", soft: "#D4F1EA", gradient: "linear-gradient(135deg,#2DB89E,#34D4B5)", Icon: Video      },
+  audio: { color: "#7A5BC9", soft: "#E8DFFF", gradient: "linear-gradient(135deg,#7A5BC9,#9B7FE8)", Icon: Headphones },
+  doc:   { color: "#E89B1C", soft: "#FFE9C2", gradient: "linear-gradient(135deg,#E89B1C,#F5B84C)", Icon: FileText   },
+  game:  { color: "#E84B6B", soft: "#FFD8E1", gradient: "linear-gradient(135deg,#E84B6B,#F0738C)", Icon: Gamepad2   },
+}
+
 export default function ResourceForm({ kind, initial, onClose, onSave }: ResourceFormProps) {
   const [step, setStep] = useState(0)
   const [form, setForm] = useState<FormState>({
     ...INITIAL,
     kind,
-    title:       initial?.title ?? "",
-    desc:        initial?.desc ?? "",
-    tags:        initial?.tags ?? [],
-    thumbEmoji:  initial?.thumbEmoji ?? "🎯",
-    thumbBg:     initial?.thumbBg ?? "#FFE3D2",
-    services:    initial?.service ? [initial.service] : [],
-    ages:        initial?.age ? [initial.age] : [],
+    title:      initial?.title ?? "",
+    desc:       initial?.desc ?? "",
+    tags:       initial?.tags ?? [],
+    thumbEmoji: initial?.thumbEmoji ?? "🎯",
+    thumbBg:    initial?.thumbBg ?? "#FFE3D2",
+    services:   initial?.service ? [initial.service] : [],
+    ages:       initial?.age ? [initial.age] : [],
   })
+
+  const meta = KIND_META[kind]
 
   function canAdvance() {
     if (step === 0) return !!form.title.trim()
     return true
   }
 
+  const stepLabels = ["Details", "Upload", "Preview & Publish"]
+
   return (
-    <div style={{
-      position: "fixed", inset: 0, zIndex: 600,
-      background: "rgba(42,47,74,0.5)", backdropFilter: "blur(5px)",
-      display: "flex", alignItems: "center", justifyContent: "center",
-      padding: 24,
-    }} onClick={onClose}>
+    <>
+      <style>{`
+        @keyframes formModalIn {
+          from { opacity: 0; transform: scale(0.95) translateY(16px); }
+          to   { opacity: 1; transform: scale(1)    translateY(0); }
+        }
+      `}</style>
+
       <div
-        onClick={(e) => e.stopPropagation()}
         style={{
-          background: "#fff", borderRadius: 28, padding: "36px 40px",
-          width: "100%", maxWidth: 660, maxHeight: "90vh", overflowY: "auto",
-          boxShadow: "0 32px 80px -16px rgba(40,20,10,0.3)",
-          fontFamily: "var(--font-nunito)",
+          position: "fixed", inset: 0, zIndex: 600,
+          background: "rgba(42,47,74,0.55)", backdropFilter: "blur(6px)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          padding: 24,
         }}
+        onClick={onClose}
       >
-        {/* Header */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 28 }}>
-          <div>
-            <div style={{ fontSize: 20, fontWeight: 900, color: C.ink }}>
-              {initial ? "Edit Resource" : "Add Resource"}
+        <div
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            background: "#fff", borderRadius: 28,
+            width: "100%", maxWidth: 760,
+            maxHeight: "92vh",
+            display: "flex", flexDirection: "column",
+            boxShadow: "0 40px 100px -20px rgba(40,20,10,0.35)",
+            fontFamily: "var(--font-nunito)",
+            animation: "formModalIn 0.25s cubic-bezier(.34,1.56,.64,1) both",
+            overflow: "hidden",
+          }}
+        >
+          {/* ── Sticky header ── */}
+          <div style={{
+            padding: "28px 36px 24px",
+            borderBottom: `1px solid ${C.hairline}`,
+            flexShrink: 0,
+            background: "#fff",
+          }}>
+            {/* Title row */}
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 24 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                {/* Kind pill */}
+                <div style={{
+                  width: 44, height: 44, borderRadius: 14, flexShrink: 0,
+                  background: meta.gradient, color: "#fff",
+                  display: "grid", placeItems: "center",
+                  boxShadow: `0 6px 16px ${meta.color}44`,
+                }}>
+                  <meta.Icon size={22} />
+                </div>
+                <div>
+                  <div style={{ fontSize: 20, fontWeight: 900, color: C.ink, letterSpacing: -0.3 }}>
+                    {initial ? "Edit Resource" : `Add ${kind.charAt(0).toUpperCase() + kind.slice(1)} Resource`}
+                  </div>
+                  <div style={{ fontSize: 13, color: C.muted, fontWeight: 600, marginTop: 2 }}>
+                    Step {step + 1} of 3 — {stepLabels[step]}
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button" onClick={onClose}
+                style={{
+                  width: 36, height: 36, borderRadius: 10, border: "none",
+                  background: C.panelBg, color: C.muted,
+                  cursor: "pointer", display: "grid", placeItems: "center",
+                  fontFamily: "inherit", flexShrink: 0,
+                }}
+              >
+                <X size={16} />
+              </button>
             </div>
-            <div style={{ fontSize: 13, color: C.muted, fontWeight: 600, marginTop: 2 }}>
-              {kind.charAt(0).toUpperCase() + kind.slice(1)} · Step {step + 1} of 3
-            </div>
+
+            {/* Stepper */}
+            <Stepper step={step} kindColor={meta.color} />
           </div>
-          <button
-            type="button" onClick={onClose}
-            style={{
-              width: 36, height: 36, borderRadius: 10, border: "none",
-              background: C.panelBg, color: C.muted,
-              cursor: "pointer", display: "grid", placeItems: "center",
-              fontFamily: "inherit",
-            }}
-          >
-            <X size={16} />
-          </button>
+
+          {/* ── Scrollable body ── */}
+          <div style={{
+            flex: 1, overflowY: "auto",
+            padding: "28px 36px",
+          }}>
+            {step === 0 && <Step1 form={form} setForm={setForm} />}
+            {step === 1 && <Step2 form={form} setForm={setForm} />}
+            {step === 2 && (
+              <Step3
+                form={form} kind={kind}
+                onPublish={() => onSave({ status: "published", form })}
+                onDraft={() => onSave({ status: "draft", form })}
+              />
+            )}
+          </div>
+
+          {/* ── Sticky footer nav (hidden on step 3, which has its own CTAs) ── */}
+          {step < 2 && (
+            <div style={{
+              padding: "18px 36px",
+              borderTop: `1px solid ${C.hairline}`,
+              background: "#fff",
+              flexShrink: 0,
+              display: "flex", gap: 12,
+            }}>
+              <button
+                type="button"
+                onClick={step === 0 ? onClose : () => setStep((s) => s - 1)}
+                style={{
+                  flex: 1, padding: "13px", borderRadius: 14,
+                  border: `2px solid ${C.hairline}`, background: "#fff",
+                  color: C.muted, fontWeight: 800, fontSize: 14,
+                  cursor: "pointer", fontFamily: "inherit",
+                  transition: "all 0.15s ease",
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.borderColor = C.ink
+                  ;(e.currentTarget as HTMLButtonElement).style.color = C.ink
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.borderColor = C.hairline
+                  ;(e.currentTarget as HTMLButtonElement).style.color = C.muted
+                }}
+              >
+                {step === 0 ? "Cancel" : "← Back"}
+              </button>
+              <button
+                type="button"
+                onClick={() => canAdvance() && setStep((s) => s + 1)}
+                disabled={!canAdvance()}
+                style={{
+                  flex: 2, padding: "13px", borderRadius: 14, border: "none",
+                  background: canAdvance() ? meta.gradient : C.hairline,
+                  color: canAdvance() ? "#fff" : C.muted,
+                  fontWeight: 800, fontSize: 14,
+                  cursor: canAdvance() ? "pointer" : "not-allowed",
+                  fontFamily: "inherit",
+                  boxShadow: canAdvance() ? `0 8px 24px ${meta.color}44` : "none",
+                  transition: "all 0.2s ease",
+                }}
+              >
+                {step === 1 ? "Continue to Preview →" : "Next — Upload content →"}
+              </button>
+            </div>
+          )}
         </div>
-
-        <Stepper step={step} />
-
-        {step === 0 && <Step1 form={form} setForm={setForm} />}
-        {step === 1 && <Step2 form={form} setForm={setForm} />}
-        {step === 2 && (
-          <Step3
-            form={form}
-            kind={kind}
-            onPublish={() => onSave({ status: "published", form })}
-            onDraft={() => onSave({ status: "draft", form })}
-          />
-        )}
-
-        {/* Bottom nav — not shown on step 3 (handled inside Step3) */}
-        {step < 2 && (
-          <div style={{ display: "flex", gap: 10, marginTop: 28 }}>
-            <button
-              type="button"
-              onClick={step === 0 ? onClose : () => setStep((s) => s - 1)}
-              style={{
-                flex: 1, padding: "13px", borderRadius: 12,
-                border: `2px solid ${C.hairline}`, background: "#fff",
-                color: C.muted, fontWeight: 800, fontSize: 14,
-                cursor: "pointer", fontFamily: "inherit",
-              }}
-            >
-              {step === 0 ? "Cancel" : "← Back"}
-            </button>
-            <button
-              type="button"
-              onClick={() => setStep((s) => s + 1)}
-              disabled={!canAdvance()}
-              style={{
-                flex: 2, padding: "13px", borderRadius: 12, border: "none",
-                background: canAdvance() ? C.primary : C.hairline,
-                color: canAdvance() ? "#fff" : C.muted,
-                fontWeight: 800, fontSize: 14,
-                cursor: canAdvance() ? "pointer" : "not-allowed",
-                fontFamily: "inherit",
-                boxShadow: canAdvance() ? "0 8px 18px rgba(215,107,63,0.35)" : "none",
-              }}
-            >
-              Next →
-            </button>
-          </div>
-        )}
       </div>
-    </div>
+    </>
   )
 }
 
@@ -839,7 +1021,7 @@ export default function ResourceForm({ kind, initial, onClose, onSave }: Resourc
 
 const labelStyle: React.CSSProperties = {
   display: "block", fontSize: 12.5, fontWeight: 800, color: C.ink,
-  marginBottom: 6, letterSpacing: 0.2,
+  marginBottom: 7, letterSpacing: 0.2,
 }
 
 const inputStyle: React.CSSProperties = {
@@ -847,10 +1029,12 @@ const inputStyle: React.CSSProperties = {
   border: `2px solid ${C.hairline}`, background: "#FAF4ED",
   fontSize: 14, fontWeight: 600, color: C.ink,
   fontFamily: "inherit", outline: "none", transition: "border-color 0.18s",
+  boxSizing: "border-box" as const,
 }
 
 const dropZoneStyle: React.CSSProperties = {
-  border: `2px dashed ${C.hairline}`, borderRadius: 16,
-  padding: "32px 24px", textAlign: "center",
-  background: "#FAF4ED", cursor: "pointer",
+  border: `2px dashed ${C.hairline}`, borderRadius: 18,
+  padding: "40px 24px", textAlign: "center" as const,
+  background: "#FAF4ED",
+  transition: "all 0.18s ease",
 }

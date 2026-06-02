@@ -30,7 +30,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div style={{ fontFamily: "var(--font-nunito)", padding: "32px 36px", maxWidth: 760 }}>
+    <div style={{ fontFamily: "var(--font-nunito)", padding: "32px 48px", maxWidth: 900, margin: "0 auto" }}>
       <h1 style={{ margin: "0 0 4px", fontSize: 28, fontWeight: 900, color: C.ink }}>Settings</h1>
       <p style={{ margin: "0 0 32px", color: C.muted, fontWeight: 600, fontSize: 14.5 }}>
         Manage your account, security and subscription preferences.
