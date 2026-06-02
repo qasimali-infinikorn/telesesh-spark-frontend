@@ -2,73 +2,12 @@
 
 import { useState, useMemo, useRef, useEffect } from "react"
 import Link from "next/link"
-import { useSession, signOut } from "next-auth/react"
+import { useSession } from "next-auth/react"
+import { TopBar } from "@/components/topbar"
 import { RESOURCES, CATEGORY, ALL_TAGS, AGE_GROUPS, SERVICES } from "@/lib/resources"
 import type { Resource, CategoryKey } from "@/lib/resources"
 
-// ─── TopBar ──────────────────────────────────────────────────────────────────
-
-function TopBar({ userName }: { userName: string }) {
-  return (
-    <header style={{
-      display: "flex", alignItems: "center", justifyContent: "space-between",
-      padding: "18px 32px",
-      background: "rgba(252, 237, 219, 0.85)",
-      backdropFilter: "blur(12px)",
-      borderBottom: "1px solid rgba(216, 155, 92, 0.15)",
-      position: "sticky", top: 0, zIndex: 50,
-    }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{
-            width: 42, height: 42, borderRadius: 12,
-            background: "linear-gradient(135deg, #2DB89E 0%, #34D4B5 100%)",
-            color: "#fff", display: "grid", placeItems: "center",
-            boxShadow: "0 6px 14px rgba(45,184,158,0.35)",
-            fontSize: 20,
-          }}>✦</div>
-          <div>
-            <div style={{ fontSize: 19, fontWeight: 900, color: "#2A2F4A", letterSpacing: -0.4, lineHeight: 1 }}>
-              Telesesh <span style={{ color: "#2DB89E" }}>Spark</span>
-            </div>
-            <div style={{ fontSize: 11.5, fontWeight: 700, color: "#9A8B7E", letterSpacing: 0.3, marginTop: 3 }}>
-              Resource Library · For session use
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-        <span style={{ fontSize: 14, fontWeight: 700, color: "#6C6580" }}>
-          Hi, <span style={{ color: "#2A2F4A", fontWeight: 900 }}>{userName}!</span>
-        </span>
-        <Link href="/admin" style={{ textDecoration: "none" }}>
-          <button style={{
-            padding: "11px 18px", borderRadius: 14, border: "none",
-            background: "#2A2F4A", color: "#fff",
-            fontWeight: 800, fontSize: 14, cursor: "pointer",
-            fontFamily: "inherit",
-            display: "inline-flex", alignItems: "center", gap: 8,
-            boxShadow: "0 8px 18px rgba(42,47,74,0.25)",
-          }}>
-            ⚙ Admin view
-          </button>
-        </Link>
-        <button
-          onClick={() => signOut({ callbackUrl: "/sign-in" })}
-          style={{
-            padding: "11px 18px", borderRadius: 14,
-            border: "2px solid #F4DCC4", background: "#fff",
-            color: "#D76B3F", fontWeight: 800, fontSize: 14,
-            cursor: "pointer", fontFamily: "inherit",
-          }}
-        >
-          Sign out
-        </button>
-      </div>
-    </header>
-  )
-}
+// ─── (TopBar is now the shared @/components/topbar) ──────────────────────────
 
 // ─── CategoryPills ────────────────────────────────────────────────────────────
 
@@ -682,11 +621,12 @@ export default function LibraryPage() {
     })
   }, [query, category, activeTags, age, service, favKind, favorites])
 
-  const userName = session?.user?.name?.split(" ")[0] ?? "there"
+  const userName  = session?.user?.name?.split(" ")[0] ?? "there"
+  const userEmail = session?.user?.email ?? ""
 
   return (
     <div style={{ minHeight: "100vh", background: "#FCEDDB", fontFamily: "var(--font-nunito)" }}>
-      <TopBar userName={userName} />
+      <TopBar userName={userName} userEmail={userEmail} />
 
       <div style={{
         maxWidth: 1480,
