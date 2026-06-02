@@ -5,7 +5,7 @@ const handler = auth((req) => {
   const isLoggedIn = !!req.auth
   const { pathname } = req.nextUrl
 
-  const isAuthPage = pathname.startsWith("/sign-in") || pathname.startsWith("/sign-up")
+  const isAuthPage = pathname.startsWith("/sign-in") || pathname.startsWith("/sign-up") || pathname.startsWith("/forgot-password")
   const isApiAuth  = pathname.startsWith("/api/auth")
 
   if (isApiAuth)                        return NextResponse.next()

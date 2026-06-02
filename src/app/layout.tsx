@@ -1,36 +1,25 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import { AuthSessionProvider } from "@/providers/session-provider";
-import "./globals.css";
+import type { Metadata } from "next"
+import { Nunito } from "next/font/google"
+import { AuthSessionProvider } from "@/providers/session-provider"
+import "./globals.css"
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const nunito = Nunito({
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+  variable: "--font-nunito",
+  weight: ["400", "600", "700", "800", "900"],
+})
 
 export const metadata: Metadata = {
   title: "Telesesh Spark",
-  description: "Telesesh Spark platform",
-};
+  description: "Bright, playful therapy resources — ready for every session.",
+}
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">
+    <html lang="en" className={nunito.variable} style={{ height: "100%" }}>
+      <body style={{ minHeight: "100%", display: "flex", flexDirection: "column" }}>
         <AuthSessionProvider>{children}</AuthSessionProvider>
       </body>
     </html>
-  );
+  )
 }

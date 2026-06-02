@@ -1,26 +1,60 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-cream: #FCEDDB;
+  --color-cream-soft: #FAF4ED;
+  --color-hairline: #F4ECE3;
+  --color-coral: #D76B3F;
+  --color-coral-soft: #FFE3D2;
+  --color-teal: #2DB89E;
+  --color-teal-soft: #D4F1EA;
+  --color-purple: #7A5BC9;
+  --color-purple-soft: #E8DFFF;
+  --color-amber: #E89B1C;
+  --color-amber-soft: #FFE9C2;
+  --color-pink: #E84B6B;
+  --color-pink-soft: #FFD8E1;
+  --color-ink: #2A2F4A;
+  --color-muted: #6C6580;
+  --font-nunito: "Nunito", system-ui, sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+*, *::before, *::after { box-sizing: border-box; }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+html { scroll-behavior: smooth; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-nunito);
+  background: var(--color-cream);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
 }
+
+/* custom scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #D6C8B6; border-radius: 999px; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes wave {
+  from { transform: scaleY(0.5); }
+  to   { transform: scaleY(1.2); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33%       { transform: translateY(-8px) rotate(3deg); }
+  66%       { transform: translateY(-4px) rotate(-2deg); }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.animate-fade-in { animation: fadeIn 0.4s ease both; }
+.animate-float   { animation: float 6s ease-in-out infinite; }

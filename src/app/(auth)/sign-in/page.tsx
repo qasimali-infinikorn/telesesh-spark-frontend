@@ -12,6 +12,7 @@ export default function SignInPage() {
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
@@ -37,86 +38,338 @@ export default function SignInPage() {
     router.refresh()
   }
 
-  async function handleGoogle() {
-    await signIn("google", { callbackUrl })
-  }
-
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-6">
-      <div className="text-center">
-        <h1 className="text-2xl font-semibold text-gray-900">Sign in</h1>
-        <p className="mt-1 text-sm text-gray-500">Welcome back to Telesesh Spark</p>
-      </div>
+    <div style={{
+      minHeight: "100vh",
+      display: "flex",
+      fontFamily: "var(--font-nunito)",
+    }}>
+      {/* Left brand panel — hidden on mobile */}
+      <div style={{
+        flex: "0 0 480px",
+        background: "linear-gradient(145deg, #2DB89E 0%, #5E4FC9 100%)",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        padding: "60px 52px",
+        position: "relative",
+        overflow: "hidden",
+      }} className="auth-brand-panel">
+        {/* Decorative floating circles */}
+        <div style={{ position: "absolute", top: -60, right: -60, width: 240, height: 240, borderRadius: "50%", background: "rgba(255,255,255,0.08)" }} />
+        <div style={{ position: "absolute", bottom: 40, left: -80, width: 200, height: 200, borderRadius: "50%", background: "rgba(255,255,255,0.06)" }} />
+        <div style={{ position: "absolute", top: "40%", right: -30, width: 120, height: 120, borderRadius: "50%", background: "rgba(255,255,255,0.07)" }} />
+        <div style={{ position: "absolute", bottom: -40, right: 80, width: 160, height: 160, borderRadius: "50%", background: "rgba(255,255,255,0.05)" }} />
 
-      <button
-        onClick={handleGoogle}
-        className="w-full flex items-center justify-center gap-3 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-      >
-        <GoogleIcon />
-        Continue with Google
-      </button>
-
-      <div className="flex items-center gap-3">
-        <div className="h-px flex-1 bg-gray-200" />
-        <span className="text-xs text-gray-400">or</span>
-        <div className="h-px flex-1 bg-gray-200" />
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {error && (
-          <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>
-        )}
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-          <input
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-            placeholder="you@example.com"
-          />
+        {/* Logo */}
+        <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 52, position: "relative", zIndex: 1 }}>
+          <div style={{
+            width: 52, height: 52, borderRadius: 16,
+            background: "rgba(255,255,255,0.22)",
+            backdropFilter: "blur(8px)",
+            display: "grid", placeItems: "center",
+            fontSize: 26, color: "#fff",
+            border: "1px solid rgba(255,255,255,0.3)",
+          }}>
+            ✦
+          </div>
+          <div>
+            <div style={{ fontSize: 22, fontWeight: 900, color: "#fff", letterSpacing: -0.5, lineHeight: 1 }}>
+              Telesesh Spark
+            </div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.7)", marginTop: 2 }}>
+              Therapy Resource Library
+            </div>
+          </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-          <input
-            type="password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-            placeholder="••••••••"
-          />
+        {/* Headline */}
+        <h2 style={{
+          margin: "0 0 20px",
+          fontSize: 32,
+          fontWeight: 900,
+          color: "#fff",
+          lineHeight: 1.15,
+          letterSpacing: -0.6,
+          position: "relative",
+          zIndex: 1,
+        }}>
+          Bright, playful therapy resources — ready for every session.
+        </h2>
+
+        <p style={{
+          margin: "0 0 40px",
+          fontSize: 16,
+          color: "rgba(255,255,255,0.82)",
+          lineHeight: 1.65,
+          fontWeight: 600,
+          position: "relative",
+          zIndex: 1,
+        }}>
+          Videos, songs, printables and games that keep autistic learners engaged while you lead the way.
+        </p>
+
+        {/* Tag pills */}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 52, position: "relative", zIndex: 1 }}>
+          {[
+            { emoji: "🎬", label: "Videos" },
+            { emoji: "🎵", label: "Audio" },
+            { emoji: "📄", label: "Docs" },
+            { emoji: "🎮", label: "Games" },
+          ].map(({ emoji, label }) => (
+            <span key={label} style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "8px 16px",
+              borderRadius: 999,
+              background: "rgba(255,255,255,0.18)",
+              backdropFilter: "blur(6px)",
+              border: "1px solid rgba(255,255,255,0.25)",
+              color: "#fff",
+              fontWeight: 700,
+              fontSize: 14,
+            }}>
+              {emoji} {label}
+            </span>
+          ))}
         </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 transition-colors"
-        >
-          {loading ? "Signing in…" : "Sign in"}
-        </button>
-      </form>
+        {/* Footer */}
+        <div style={{
+          fontSize: 13.5,
+          color: "rgba(255,255,255,0.7)",
+          fontWeight: 700,
+          position: "relative",
+          zIndex: 1,
+        }}>
+          Trusted by speech, OT &amp; counseling teams 🌈
+        </div>
+      </div>
 
-      <p className="text-center text-sm text-gray-500">
-        Don&apos;t have an account?{" "}
-        <Link href="/sign-up" className="text-blue-600 hover:underline font-medium">
-          Sign up
-        </Link>
-      </p>
+      {/* Right form panel */}
+      <div style={{
+        flex: 1,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "#fff",
+        padding: "48px 32px",
+      }}>
+        <div style={{ width: "100%", maxWidth: 420, animation: "fadeIn 0.5s ease both" }}>
+          {/* Label */}
+          <div style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6,
+            padding: "5px 12px",
+            borderRadius: 999,
+            background: "#FFE3D2",
+            color: "#D76B3F",
+            fontSize: 12,
+            fontWeight: 800,
+            letterSpacing: 1,
+            marginBottom: 18,
+          }}>
+            WELCOME BACK 👋
+          </div>
+
+          <h1 style={{
+            margin: "0 0 8px",
+            fontSize: 34,
+            fontWeight: 900,
+            color: "#2A2F4A",
+            letterSpacing: -0.6,
+            lineHeight: 1.1,
+          }}>
+            Log in to Spark
+          </h1>
+          <p style={{ margin: "0 0 36px", fontSize: 16, color: "#6C6580", fontWeight: 600 }}>
+            Pick up right where your sessions left off.
+          </p>
+
+          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+            {error && (
+              <div style={{
+                padding: "12px 16px",
+                borderRadius: 14,
+                background: "#FFF0F0",
+                border: "1px solid #FFD0D0",
+                color: "#C0392B",
+                fontSize: 14,
+                fontWeight: 700,
+              }}>
+                {error}
+              </div>
+            )}
+
+            {/* Email */}
+            <div>
+              <label style={{ display: "block", fontSize: 13, fontWeight: 800, color: "#2A2F4A", marginBottom: 8, letterSpacing: 0.2 }}>
+                Email address
+              </label>
+              <div style={{ position: "relative" }}>
+                <span style={{
+                  position: "absolute",
+                  left: 16,
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  color: "#9A8B7E",
+                  pointerEvents: "none",
+                }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                  </svg>
+                </span>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  style={{
+                    width: "100%",
+                    padding: "14px 16px 14px 48px",
+                    borderRadius: 14,
+                    border: "2px solid #F4ECE3",
+                    fontSize: 15,
+                    fontWeight: 600,
+                    color: "#2A2F4A",
+                    background: "#FAF4ED",
+                    fontFamily: "inherit",
+                    outline: "none",
+                    transition: "border-color 0.18s",
+                  }}
+                  onFocus={(e) => (e.target.style.borderColor = "#D76B3F")}
+                  onBlur={(e) => (e.target.style.borderColor = "#F4ECE3")}
+                />
+              </div>
+            </div>
+
+            {/* Password */}
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                <label style={{ fontSize: 13, fontWeight: 800, color: "#2A2F4A", letterSpacing: 0.2 }}>
+                  Password
+                </label>
+                <Link href="/forgot-password" style={{ fontSize: 13, fontWeight: 700, color: "#D76B3F", textDecoration: "none" }}>
+                  Forgot password?
+                </Link>
+              </div>
+              <div style={{ position: "relative" }}>
+                <span style={{
+                  position: "absolute",
+                  left: 16,
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  color: "#9A8B7E",
+                  pointerEvents: "none",
+                }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
+                </span>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  style={{
+                    width: "100%",
+                    padding: "14px 48px 14px 48px",
+                    borderRadius: 14,
+                    border: "2px solid #F4ECE3",
+                    fontSize: 15,
+                    fontWeight: 600,
+                    color: "#2A2F4A",
+                    background: "#FAF4ED",
+                    fontFamily: "inherit",
+                    outline: "none",
+                    transition: "border-color 0.18s",
+                  }}
+                  onFocus={(e) => (e.target.style.borderColor = "#D76B3F")}
+                  onBlur={(e) => (e.target.style.borderColor = "#F4ECE3")}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: "absolute",
+                    right: 14,
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    color: "#9A8B7E",
+                    padding: 4,
+                    display: "grid",
+                    placeItems: "center",
+                  }}
+                >
+                  {showPassword ? (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>
+                    </svg>
+                  ) : (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                    </svg>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={loading}
+              style={{
+                width: "100%",
+                padding: "16px 24px",
+                borderRadius: 16,
+                border: "none",
+                background: loading ? "#E8C8B8" : "#D76B3F",
+                color: "#fff",
+                fontWeight: 900,
+                fontSize: 16,
+                cursor: loading ? "not-allowed" : "pointer",
+                fontFamily: "inherit",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 10,
+                boxShadow: loading ? "none" : "0 8px 22px rgba(215, 107, 63, 0.35)",
+                transition: "all 0.18s ease",
+                marginTop: 4,
+              }}
+            >
+              {loading ? "Signing in…" : (
+                <>
+                  Log in to Spark
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+                  </svg>
+                </>
+              )}
+            </button>
+          </form>
+
+          <p style={{ marginTop: 28, textAlign: "center", fontSize: 14, color: "#6C6580", fontWeight: 600 }}>
+            New to Spark?{" "}
+            <Link href="/sign-up" style={{ color: "#D76B3F", fontWeight: 800, textDecoration: "none" }}>
+              Create an account
+            </Link>
+          </p>
+        </div>
+      </div>
+
+      <style>{`
+        @media (max-width: 768px) {
+          .auth-brand-panel { display: none !important; }
+        }
+      `}</style>
     </div>
-  )
-}
-
-function GoogleIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 18 18">
-      <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615Z"/>
-      <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18Z"/>
-      <path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332Z"/>
-      <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58Z"/>
-    </svg>
   )
 }

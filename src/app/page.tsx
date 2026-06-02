@@ -1,65 +1,760 @@
-import Image from "next/image";
+"use client"
 
-export default function Home() {
+import { useState, useMemo, useRef, useEffect } from "react"
+import { useSession, signOut } from "next-auth/react"
+import { RESOURCES, CATEGORY, ALL_TAGS, AGE_GROUPS, SERVICES } from "@/lib/resources"
+import type { Resource, CategoryKey } from "@/lib/resources"
+
+// ─── TopBar ──────────────────────────────────────────────────────────────────
+
+function TopBar({ userName }: { userName: string }) {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <header style={{
+      display: "flex", alignItems: "center", justifyContent: "space-between",
+      padding: "18px 32px",
+      background: "rgba(252, 237, 219, 0.85)",
+      backdropFilter: "blur(12px)",
+      borderBottom: "1px solid rgba(216, 155, 92, 0.15)",
+      position: "sticky", top: 0, zIndex: 50,
+    }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{
+            width: 42, height: 42, borderRadius: 12,
+            background: "linear-gradient(135deg, #2DB89E 0%, #34D4B5 100%)",
+            color: "#fff", display: "grid", placeItems: "center",
+            boxShadow: "0 6px 14px rgba(45,184,158,0.35)",
+            fontSize: 20,
+          }}>✦</div>
+          <div>
+            <div style={{ fontSize: 19, fontWeight: 900, color: "#2A2F4A", letterSpacing: -0.4, lineHeight: 1 }}>
+              Telesesh <span style={{ color: "#2DB89E" }}>Spark</span>
+            </div>
+            <div style={{ fontSize: 11.5, fontWeight: 700, color: "#9A8B7E", letterSpacing: 0.3, marginTop: 3 }}>
+              Resource Library · For session use
+            </div>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      </div>
+
+      <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+        <span style={{ fontSize: 14, fontWeight: 700, color: "#6C6580" }}>
+          Hi, <span style={{ color: "#2A2F4A", fontWeight: 900 }}>{userName}!</span>
+        </span>
+        <button style={{
+          padding: "11px 18px", borderRadius: 14, border: "none",
+          background: "#2A2F4A", color: "#fff",
+          fontWeight: 800, fontSize: 14, cursor: "pointer",
+          fontFamily: "inherit",
+          display: "inline-flex", alignItems: "center", gap: 8,
+          boxShadow: "0 8px 18px rgba(42,47,74,0.25)",
+        }}>
+          ⚙ Admin view
+        </button>
+        <button
+          onClick={() => signOut({ callbackUrl: "/sign-in" })}
+          style={{
+            padding: "11px 18px", borderRadius: 14,
+            border: "2px solid #F4DCC4", background: "#fff",
+            color: "#D76B3F", fontWeight: 800, fontSize: 14,
+            cursor: "pointer", fontFamily: "inherit",
+          }}
+        >
+          Sign out
+        </button>
+      </div>
+    </header>
+  )
+}
+
+// ─── CategoryPills ────────────────────────────────────────────────────────────
+
+function CategoryPills({
+  category,
+  setCategory,
+  counts,
+}: {
+  category: CategoryKey
+  setCategory: (k: CategoryKey) => void
+  counts: Record<string, number>
+}) {
+  return (
+    <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 4 }}>
+      {(Object.keys(CATEGORY) as CategoryKey[]).map((k) => {
+        const c = CATEGORY[k]
+        const active = category === k
+        return (
+          <button
+            key={k}
+            onClick={() => setCategory(k)}
+            style={{
+              display: "flex", alignItems: "center", gap: 8,
+              padding: "10px 16px", borderRadius: 16,
+              border: "2px solid", borderColor: active ? c.color : "#F4ECE3",
+              background: active ? c.soft : "#fff",
+              color: active ? c.color : "#6C6580",
+              fontWeight: 800, fontSize: 14, cursor: "pointer",
+              fontFamily: "inherit",
+              transition: "all 0.18s ease",
+            }}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+            <span>{c.emoji}</span>
+            {c.label}
+            <span style={{
+              fontSize: 12, fontWeight: 800,
+              padding: "2px 8px", borderRadius: 999,
+              background: active ? c.color : "#F4ECE3",
+              color: active ? "#fff" : "#9A8B7E",
+            }}>
+              {k === "all" ? counts.all : counts[k] ?? 0}
+            </span>
+          </button>
+        )
+      })}
     </div>
-  );
+  )
+}
+
+// ─── ResourceCard ─────────────────────────────────────────────────────────────
+
+function ResourceCard({
+  item,
+  isFav,
+  onToggleFav,
+  animDelay,
+}: {
+  item: Resource
+  isFav: boolean
+  onToggleFav: () => void
+  animDelay: number
+}) {
+  const [hover, setHover] = useState(false)
+  const c = CATEGORY[item.kind]
+
+  return (
+    <article
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        background: "#fff",
+        borderRadius: 28,
+        overflow: "hidden",
+        cursor: "pointer",
+        boxShadow: hover
+          ? "0 18px 40px -12px rgba(40,20,10,0.18), 0 4px 12px rgba(40,20,10,0.06)"
+          : "0 6px 18px -8px rgba(40,20,10,0.12), 0 2px 6px rgba(40,20,10,0.04)",
+        transform: hover ? "translateY(-4px)" : "translateY(0)",
+        transition: "transform 0.25s cubic-bezier(.2,.8,.2,1), box-shadow 0.25s ease",
+        display: "flex", flexDirection: "column",
+        border: `1px solid ${hover ? c.soft : "#F4ECE3"}`,
+        animation: `fadeIn 0.5s ease ${animDelay}ms both`,
+      }}
+    >
+      {/* Thumbnail */}
+      <div style={{
+        position: "relative",
+        aspectRatio: "5/3",
+        background: item.thumbBg,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        overflow: "hidden",
+      }}>
+        {/* Decorative circles */}
+        <div style={{ position: "absolute", top: -20, right: -20, width: 80, height: 80, borderRadius: "50%", background: "rgba(255,255,255,0.3)" }} />
+        <div style={{ position: "absolute", bottom: -10, left: -10, width: 60, height: 60, borderRadius: "50%", background: "rgba(255,255,255,0.2)" }} />
+
+        <span style={{ fontSize: 64, filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.15))", position: "relative", zIndex: 1 }}>
+          {item.thumbEmoji}
+        </span>
+
+        {/* Fav button */}
+        <button
+          onClick={(e) => { e.stopPropagation(); onToggleFav() }}
+          style={{
+            position: "absolute", top: 14, right: 14, zIndex: 2,
+            width: 38, height: 38, borderRadius: 999, border: "none",
+            background: isFav ? "#fff" : "rgba(255,255,255,0.85)",
+            color: isFav ? c.color : "#9A9AB0",
+            cursor: "pointer", display: "grid", placeItems: "center",
+            boxShadow: "0 4px 12px rgba(40, 20, 10, 0.12)",
+            fontSize: 18,
+            transition: "transform 0.18s ease",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
+          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+        >
+          {isFav ? "★" : "☆"}
+        </button>
+
+        {/* Duration / pages / plays pill */}
+        <div style={{
+          position: "absolute", bottom: 14, left: 14,
+          padding: "6px 12px", borderRadius: 999,
+          background: "rgba(42, 47, 74, 0.78)", color: "#fff",
+          fontWeight: 700, fontSize: 12, backdropFilter: "blur(6px)",
+        }}>
+          {item.kind === "video" && `🎬 ${item.duration}`}
+          {item.kind === "audio" && `🎵 ${item.duration}`}
+          {item.kind === "doc"   && `📄 ${item.pages} pages`}
+          {item.kind === "game"  && `🎮 ${item.plays} plays`}
+        </div>
+      </div>
+
+      {/* Body */}
+      <div style={{ padding: "20px 22px 22px", display: "flex", flexDirection: "column", gap: 12, flex: 1 }}>
+        {/* Badge */}
+        <span style={{
+          display: "inline-flex", alignItems: "center", gap: 6,
+          padding: "6px 12px", borderRadius: 999,
+          background: c.soft, color: c.color,
+          fontWeight: 700, fontSize: 12, letterSpacing: 0.2, alignSelf: "flex-start",
+        }}>
+          {c.emoji} {item.badge}
+        </span>
+
+        <h3 style={{ margin: 0, fontSize: 21, lineHeight: 1.22, color: "#2A2F4A", fontWeight: 800, letterSpacing: -0.2 }}>
+          {item.title}
+        </h3>
+        <p style={{ margin: 0, fontSize: 14.5, lineHeight: 1.5, color: "#6C6580" }}>
+          {item.desc}
+        </p>
+
+        {/* View button */}
+        <div style={{ marginTop: "auto", paddingTop: 4, display: "flex", alignItems: "center", gap: 12 }}>
+          <button style={{
+            flex: 1, padding: "14px 18px", borderRadius: 16,
+            border: "none", background: c.color, color: "#fff",
+            fontWeight: 800, fontSize: 15, cursor: "pointer",
+            display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
+            boxShadow: `0 8px 18px ${c.color}44`,
+            fontFamily: "inherit",
+          }}>
+            👁 View
+          </button>
+          <div style={{ fontSize: 36, flexShrink: 0 }}>
+            {item.kind === "video" ? "🎥" : item.kind === "audio" ? "🎧" : item.kind === "doc" ? "📚" : "🎲"}
+          </div>
+        </div>
+      </div>
+    </article>
+  )
+}
+
+// ─── EmptyState ───────────────────────────────────────────────────────────────
+
+function EmptyState() {
+  return (
+    <div style={{
+      padding: "60px 28px", borderRadius: 28, background: "#fff",
+      textAlign: "center", border: "2px dashed #F4DCC4", marginTop: 24,
+    }}>
+      <div style={{ fontSize: 44, marginBottom: 8 }}>🔎</div>
+      <h3 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: "#2A2F4A" }}>Nothing matches yet</h3>
+      <p style={{ margin: "8px 0 0", color: "#6C6580", fontWeight: 600 }}>
+        Try clearing a filter or searching for something else.
+      </p>
+    </div>
+  )
+}
+
+// ─── MultiDropdown ────────────────────────────────────────────────────────────
+
+function MultiDropdown({
+  label,
+  icon,
+  options,
+  selected,
+  onToggle,
+}: {
+  label: string
+  icon: React.ReactNode
+  options: string[]
+  selected: Set<string>
+  onToggle: (v: string) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClick)
+    return () => document.removeEventListener("mousedown", handleClick)
+  }, [])
+
+  const count = selected.size
+
+  return (
+    <div ref={ref} style={{ position: "relative" }}>
+      <button
+        onClick={() => setOpen(!open)}
+        style={{
+          width: "100%",
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          padding: "11px 14px",
+          borderRadius: 12,
+          border: "2px solid",
+          borderColor: count > 0 ? "#D76B3F" : "#F4ECE3",
+          background: count > 0 ? "#FFE3D2" : "#FAF4ED",
+          color: count > 0 ? "#D76B3F" : "#6C6580",
+          fontWeight: 700, fontSize: 13.5,
+          cursor: "pointer", fontFamily: "inherit",
+          transition: "all 0.18s ease",
+        }}
+      >
+        <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          {icon}
+          {label}
+          {count > 0 && (
+            <span style={{
+              padding: "2px 8px", borderRadius: 999,
+              background: "#D76B3F", color: "#fff",
+              fontWeight: 800, fontSize: 11,
+            }}>
+              {count}
+            </span>
+          )}
+        </span>
+        <svg
+          width="14" height="14"
+          viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" strokeWidth="2.5"
+          strokeLinecap="round" strokeLinejoin="round"
+          style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s ease" }}
+        >
+          <path d="m6 9 6 6 6-6"/>
+        </svg>
+      </button>
+
+      {open && (
+        <div style={{
+          position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0,
+          background: "#fff", borderRadius: 14,
+          border: "1px solid #F4ECE3",
+          boxShadow: "0 12px 32px -8px rgba(40,20,10,0.15)",
+          zIndex: 100,
+          overflow: "hidden",
+          animation: "fadeIn 0.18s ease both",
+        }}>
+          {options.map((opt) => {
+            const active = selected.has(opt)
+            return (
+              <button
+                key={opt}
+                onClick={() => onToggle(opt)}
+                style={{
+                  width: "100%", display: "flex", alignItems: "center", gap: 10,
+                  padding: "10px 14px",
+                  background: active ? "#FFF5EF" : "transparent",
+                  border: "none", borderBottom: "1px solid #F9F2EA",
+                  color: active ? "#D76B3F" : "#2A2F4A",
+                  fontWeight: active ? 800 : 600, fontSize: 13.5,
+                  cursor: "pointer", fontFamily: "inherit",
+                  textAlign: "left",
+                  transition: "background 0.15s",
+                }}
+                onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = "#FAF4ED" }}
+                onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = "transparent" }}
+              >
+                <div style={{
+                  width: 18, height: 18, borderRadius: 5, flexShrink: 0,
+                  border: "2px solid", borderColor: active ? "#D76B3F" : "#D6C8B6",
+                  background: active ? "#D76B3F" : "#fff",
+                  display: "grid", placeItems: "center",
+                  transition: "all 0.15s",
+                }}>
+                  {active && (
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                  )}
+                </div>
+                {opt}
+              </button>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Sidebar ──────────────────────────────────────────────────────────────────
+
+function Sidebar({
+  query, setQuery,
+  age, toggleAge,
+  service, toggleService,
+  activeTags, toggleTag,
+  favorites, favKind, setFavKind,
+}: {
+  query: string
+  setQuery: (v: string) => void
+  age: Set<string>
+  toggleAge: (v: string) => void
+  service: Set<string>
+  toggleService: (v: string) => void
+  activeTags: Set<string>
+  toggleTag: (v: string) => void
+  favorites: Set<string>
+  favKind: string | null
+  setFavKind: (k: string | null) => void
+}) {
+  const sectionLabel: React.CSSProperties = {
+    fontSize: 11, fontWeight: 900, color: "#6C6580",
+    letterSpacing: 1.2, textTransform: "uppercase" as const,
+    marginBottom: 10,
+  }
+
+  // Group favorites by kind
+  const favsByKind = useMemo(() => {
+    const groups: Record<string, number> = {}
+    RESOURCES.forEach((r) => {
+      if (favorites.has(r.id)) {
+        groups[r.kind] = (groups[r.kind] ?? 0) + 1
+      }
+    })
+    return groups
+  }, [favorites])
+
+  const hasFavs = Object.keys(favsByKind).length > 0
+
+  return (
+    <aside style={{
+      width: 340, flexShrink: 0,
+      background: "#fff", borderRadius: 24,
+      border: "1px solid #F4ECE3",
+      boxShadow: "0 6px 18px -8px rgba(40,20,10,0.10)",
+      padding: 24,
+      position: "sticky", top: 88,
+      maxHeight: "calc(100vh - 96px)",
+      overflowY: "auto",
+      display: "flex", flexDirection: "column", gap: 28,
+    }}>
+      {/* Search */}
+      <div>
+        <p style={sectionLabel}>Search</p>
+        <div style={{ position: "relative" }}>
+          <span style={{
+            position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)",
+            color: "#9A8B7E", pointerEvents: "none",
+          }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+          </span>
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search resources…"
+            style={{
+              width: "100%",
+              padding: "12px 14px 12px 40px",
+              borderRadius: 12,
+              border: "2px solid #F4ECE3",
+              fontSize: 14,
+              fontWeight: 600,
+              color: "#2A2F4A",
+              background: "#FAF4ED",
+              fontFamily: "inherit",
+              outline: "none",
+              transition: "border-color 0.18s",
+            }}
+            onFocus={(e) => (e.target.style.borderColor = "#D76B3F")}
+            onBlur={(e) => (e.target.style.borderColor = "#F4ECE3")}
+          />
+        </div>
+      </div>
+
+      {/* Service */}
+      <div>
+        <p style={sectionLabel}>Service</p>
+        <MultiDropdown
+          label="All services"
+          icon={
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+            </svg>
+          }
+          options={SERVICES}
+          selected={service}
+          onToggle={toggleService}
+        />
+      </div>
+
+      {/* Age group */}
+      <div>
+        <p style={sectionLabel}>Age Group</p>
+        <MultiDropdown
+          label="All ages"
+          icon={
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+          }
+          options={AGE_GROUPS}
+          selected={age}
+          onToggle={toggleAge}
+        />
+      </div>
+
+      {/* Favorites */}
+      {hasFavs && (
+        <div>
+          <p style={sectionLabel}>Favorites</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            {/* All favorites button */}
+            <button
+              onClick={() => setFavKind(favKind === "all-favs" ? null : "all-favs")}
+              style={{
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+                padding: "10px 14px", borderRadius: 12,
+                border: "2px solid",
+                borderColor: favKind === "all-favs" ? "#D76B3F" : "#F4ECE3",
+                background: favKind === "all-favs" ? "#FFE3D2" : "#FAF4ED",
+                color: favKind === "all-favs" ? "#D76B3F" : "#6C6580",
+                fontWeight: 800, fontSize: 13, cursor: "pointer", fontFamily: "inherit",
+                transition: "all 0.18s ease",
+              }}
+            >
+              <span>★ All favorites</span>
+              <span style={{
+                padding: "2px 8px", borderRadius: 999,
+                background: favKind === "all-favs" ? "#D76B3F" : "#F4ECE3",
+                color: favKind === "all-favs" ? "#fff" : "#9A8B7E",
+                fontWeight: 800, fontSize: 11,
+              }}>
+                {favorites.size}
+              </span>
+            </button>
+
+            {(Object.entries(favsByKind) as Array<[Resource["kind"], number]>).map(([kind, cnt]) => {
+              const c = CATEGORY[kind]
+              const isActive = favKind === kind
+              return (
+                <button
+                  key={kind}
+                  onClick={() => setFavKind(isActive ? null : kind)}
+                  style={{
+                    display: "flex", alignItems: "center", justifyContent: "space-between",
+                    padding: "10px 14px", borderRadius: 12,
+                    border: "2px solid",
+                    borderColor: isActive ? c.color : "#F4ECE3",
+                    background: isActive ? c.soft : "#FAF4ED",
+                    color: isActive ? c.color : "#6C6580",
+                    fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: "inherit",
+                    transition: "all 0.18s ease",
+                  }}
+                >
+                  <span>{c.emoji} {c.label}</span>
+                  <span style={{
+                    padding: "2px 8px", borderRadius: 999,
+                    background: isActive ? c.color : "#F4ECE3",
+                    color: isActive ? "#fff" : "#9A8B7E",
+                    fontWeight: 800, fontSize: 11,
+                  }}>
+                    {cnt}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Tags */}
+      <div>
+        <p style={sectionLabel}>Tags</p>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
+          {ALL_TAGS.map((tag) => {
+            const active = activeTags.has(tag)
+            return (
+              <button
+                key={tag}
+                onClick={() => toggleTag(tag)}
+                style={{
+                  padding: "7px 13px", borderRadius: 999,
+                  border: "2px solid",
+                  borderColor: active ? "#D76B3F" : "#F4ECE3",
+                  background: active ? "#FFE3D2" : "#FAF4ED",
+                  color: active ? "#D76B3F" : "#6C6580",
+                  fontWeight: 700, fontSize: 12.5,
+                  cursor: "pointer", fontFamily: "inherit",
+                  transition: "all 0.18s ease",
+                }}
+              >
+                {tag}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Clear all button — shown if any filter is active */}
+      {(query || age.size > 0 || service.size > 0 || activeTags.size > 0 || favKind) && (
+        <button
+          onClick={() => {
+            setQuery("")
+            age.forEach(toggleAge)
+            service.forEach(toggleService)
+            activeTags.forEach(toggleTag)
+            setFavKind(null)
+          }}
+          style={{
+            padding: "12px", borderRadius: 12,
+            border: "2px solid #F4ECE3", background: "#FAF4ED",
+            color: "#9A8B7E", fontWeight: 800, fontSize: 13,
+            cursor: "pointer", fontFamily: "inherit",
+          }}
+        >
+          ✕ Clear all filters
+        </button>
+      )}
+    </aside>
+  )
+}
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
+
+export default function LibraryPage() {
+  const { data: session } = useSession()
+  const [query, setQuery] = useState("")
+  const [category, setCategory] = useState<CategoryKey>("all")
+  const [activeTags, setActiveTags] = useState<Set<string>>(new Set())
+  const [age, setAge] = useState<Set<string>>(new Set())
+  const [service, setService] = useState<Set<string>>(new Set())
+  const [favorites, setFavorites] = useState<Set<string>>(
+    new Set(RESOURCES.filter((r) => r.fav).map((r) => r.id))
+  )
+  const [favKind, setFavKind] = useState<string | null>(null)
+
+  const toggleFav = (id: string) =>
+    setFavorites((prev) => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+
+  const toggleTag = (tag: string) =>
+    setActiveTags((prev) => {
+      const next = new Set(prev)
+      next.has(tag) ? next.delete(tag) : next.add(tag)
+      return next
+    })
+
+  const toggleAge = (a: string) =>
+    setAge((prev) => {
+      const next = new Set(prev)
+      next.has(a) ? next.delete(a) : next.add(a)
+      return next
+    })
+
+  const toggleService = (s: string) =>
+    setService((prev) => {
+      const next = new Set(prev)
+      next.has(s) ? next.delete(s) : next.add(s)
+      return next
+    })
+
+  const counts = useMemo(() => {
+    const c: Record<string, number> = { all: RESOURCES.length, video: 0, audio: 0, doc: 0, game: 0 }
+    RESOURCES.forEach((r) => { c[r.kind]++ })
+    return c
+  }, [])
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    return RESOURCES.filter((r) => {
+      if (favKind === "all-favs" && !favorites.has(r.id)) return false
+      if (favKind && favKind !== "all-favs" && (!favorites.has(r.id) || r.kind !== favKind)) return false
+      if (category !== "all" && r.kind !== category) return false
+      if (age.size > 0 && !age.has(r.age)) return false
+      if (service.size > 0 && !service.has(r.service)) return false
+      if (activeTags.size > 0 && !r.tags.some((t) => activeTags.has(t))) return false
+      if (q && !(r.title.toLowerCase().includes(q) || r.desc.toLowerCase().includes(q))) return false
+      return true
+    })
+  }, [query, category, activeTags, age, service, favKind, favorites])
+
+  const userName = session?.user?.name?.split(" ")[0] ?? "there"
+
+  return (
+    <div style={{ minHeight: "100vh", background: "#FCEDDB", fontFamily: "var(--font-nunito)" }}>
+      <TopBar userName={userName} />
+
+      <div style={{
+        maxWidth: 1480,
+        margin: "0 auto",
+        padding: "28px 32px 80px",
+        display: "flex",
+        gap: 28,
+        alignItems: "flex-start",
+      }}>
+        {/* MAIN */}
+        <main style={{ flex: 1, minWidth: 0 }}>
+          {/* Page header */}
+          <div style={{ marginBottom: 24, animation: "fadeIn 0.5s ease both" }}>
+            <div style={{
+              display: "inline-flex", alignItems: "center", gap: 8,
+              padding: "5px 12px", borderRadius: 999,
+              background: "#fff", color: "#D76B3F",
+              fontSize: 12, fontWeight: 800, letterSpacing: 0.6,
+              marginBottom: 10, border: "1px solid #F4DCC4",
+            }}>
+              ✦ RESOURCES
+            </div>
+            <h1 style={{ margin: 0, fontSize: 38, fontWeight: 900, color: "#2A2F4A", letterSpacing: -0.8, lineHeight: 1.05 }}>
+              Hi {userName}, ready to spark<br />a great session?
+            </h1>
+            <p style={{ margin: "10px 0 0", fontSize: 16, color: "#6C6580", fontWeight: 600 }}>
+              Pick a resource to share with your learner — videos, songs, printables &amp; games.
+            </p>
+          </div>
+
+          {/* Category pills */}
+          <CategoryPills category={category} setCategory={setCategory} counts={counts} />
+
+          {/* Grid or empty state */}
+          {filtered.length === 0 ? (
+            <EmptyState />
+          ) : (
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
+              gap: 24,
+              marginTop: 24,
+            }}>
+              {filtered.map((item, i) => (
+                <ResourceCard
+                  key={item.id}
+                  item={item}
+                  isFav={favorites.has(item.id)}
+                  onToggleFav={() => toggleFav(item.id)}
+                  animDelay={i * 60}
+                />
+              ))}
+            </div>
+          )}
+        </main>
+
+        {/* SIDEBAR */}
+        <Sidebar
+          query={query}
+          setQuery={setQuery}
+          age={age}
+          toggleAge={toggleAge}
+          service={service}
+          toggleService={toggleService}
+          activeTags={activeTags}
+          toggleTag={toggleTag}
+          favorites={favorites}
+          favKind={favKind}
+          setFavKind={setFavKind}
+        />
+      </div>
+    </div>
+  )
 }
