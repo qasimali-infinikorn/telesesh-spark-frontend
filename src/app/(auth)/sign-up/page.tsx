@@ -52,7 +52,7 @@ export default function SignUpPage() {
       return
     }
 
-    router.push("/")
+    router.push("/packages")
     router.refresh()
   }
 
