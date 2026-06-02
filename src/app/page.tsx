@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useMemo, useRef, useEffect } from "react"
+import Link from "next/link"
 import { useSession, signOut } from "next-auth/react"
 import { RESOURCES, CATEGORY, ALL_TAGS, AGE_GROUPS, SERVICES } from "@/lib/resources"
 import type { Resource, CategoryKey } from "@/lib/resources"
@@ -41,16 +42,18 @@ function TopBar({ userName }: { userName: string }) {
         <span style={{ fontSize: 14, fontWeight: 700, color: "#6C6580" }}>
           Hi, <span style={{ color: "#2A2F4A", fontWeight: 900 }}>{userName}!</span>
         </span>
-        <button style={{
-          padding: "11px 18px", borderRadius: 14, border: "none",
-          background: "#2A2F4A", color: "#fff",
-          fontWeight: 800, fontSize: 14, cursor: "pointer",
-          fontFamily: "inherit",
-          display: "inline-flex", alignItems: "center", gap: 8,
-          boxShadow: "0 8px 18px rgba(42,47,74,0.25)",
-        }}>
-          ⚙ Admin view
-        </button>
+        <Link href="/admin" style={{ textDecoration: "none" }}>
+          <button style={{
+            padding: "11px 18px", borderRadius: 14, border: "none",
+            background: "#2A2F4A", color: "#fff",
+            fontWeight: 800, fontSize: 14, cursor: "pointer",
+            fontFamily: "inherit",
+            display: "inline-flex", alignItems: "center", gap: 8,
+            boxShadow: "0 8px 18px rgba(42,47,74,0.25)",
+          }}>
+            ⚙ Admin view
+          </button>
+        </Link>
         <button
           onClick={() => signOut({ callbackUrl: "/sign-in" })}
           style={{
